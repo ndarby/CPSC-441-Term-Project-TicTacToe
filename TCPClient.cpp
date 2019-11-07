@@ -83,7 +83,7 @@ int main(int argc, char *argv[]) {
         // Receive the response from the server
         string receivedData;
         bytesRecv = recv(sock, (char *) &inBuffer, sizeof(inBuffer), 0);
-        receivedData = receivedData + iinBuffer;
+        receivedData = receivedData + inBuffer;
         // string receivedData;
         // bytesRecv = 0;
         // int total = 0;
@@ -106,7 +106,7 @@ int main(int argc, char *argv[]) {
         memset(&outBuffer, 0, BUFFERSIZE);
         memset(&inBuffer, 0, BUFFERSIZE);
         recv(sock, (char *) &inBuffer, BUFFERSIZE, 0);
-        receivedData = inBuffer;
+        receivedData = receivedData + inBuffer;
         cout << receivedData << endl;
         cout << "Please make a move ('logout' to terminate): ";
         fgets(outBuffer, BUFFERSIZE, stdin);
