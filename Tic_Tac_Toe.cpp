@@ -30,6 +30,8 @@ string TicTacToe::makeMove(bool xTurn, int col, int row){
 		oPlayer.play(col, row);
 	}
 
+	xPlayer.displayBoard();
+
 	return "turn finished (fix this later)";
 }
 

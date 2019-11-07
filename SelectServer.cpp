@@ -33,10 +33,10 @@ void receiveData (int, char[], int&);
 int xPlayerSock;
 int oPlayerSock;
 
-bool xPlayerSet = false;
-bool oPlayerSet = false;
+static bool xPlayerSet = false;
+static bool oPlayerSet = false;
 
-bool xPlayerTurn = true;
+static bool xPlayerTurn = true;
 
 TicTacToe theGame = TicTacToe();
 
@@ -287,15 +287,19 @@ void sendData(int sock, char* buffer, int size){
 
 	int col = (int)buffer[0];
 	int row = (int)buffer[2];
-	if(sock == xPlayerSock && xPlayerTurn){
+	if((sock == xPlayerSock) && xPlayerTurn){
 		//make a move with xplayer
 		theGame.makeMove(xPlayerTurn, col, row);
 		xPlayerTurn = false;
-	}else if(sock == oPlayerSock && !xPlayerTurn){
+	}else if((sock == oPlayerSock) && (!xPlayerTurn)){
 		//make a move with the oPlayer
 		theGame.makeMove(xPlayerTurn, col, row);
 		xPlayerTurn = true;
 	}
+
+	send(sock, buffer, size, 0);
+
+	return;
 }
 
 // void sendData (int sock, char* buffer, int size)

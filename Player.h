@@ -86,4 +86,8 @@ public:
 		myBoard->display();  //send string back to server eventually FIX THIS
 	}
 
+	void displayBoard(){
+		myBoard->display();
+	}
+
 };
