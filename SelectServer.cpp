@@ -38,11 +38,15 @@ bool oPlayerSet = false;
 
 bool xPlayerTurn = true;
 
+TicTacToe theGame;
+
 // string list();
 // string get(string filename);
 
 int main(int argc, char *argv[])
 {
+	theGame;
+
     int TCPSock;                  // server socket descriptor
     int UDPSock;
     int clientSock;                  // client socket descriptor
@@ -105,7 +109,7 @@ int main(int argc, char *argv[])
             }else if(xPlayerSet && !oPlayerSet){
             	oPlayerSock = clientSock;
             	oPlayerSet = true;
-            	run("xPlayer", "oPlayer"); //FIX THIS add usernames later
+            	theGame.run("xPlayer", "oPlayer"); //FIX THIS add usernames later
             }else{
             	cout << "Player is not able to be added to the game." << endl;
             }
@@ -281,11 +285,11 @@ void sendData(int sock, char* buffer, int size){
 	int row = (int)buffer[2];
 	if(sock == xPlayerSock && xPlayerTurn){
 		//make a move with xplayer
-		makeMove(xPlayerTurn, col, row);
+		theGame.makeMove(xPlayerTurn, col, row);
 		xPlayerTurn = false;
 	}else if(sock == oPlayerSock && !xPlayerTurn){
 		//make a move with the oPlayer
-		makeMove(xPlayerTurn, col, row);
+		theGame.makeMove(xPlayerTurn, col, row);
 		xPlayerTurn = true;
 	}
 }

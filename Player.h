@@ -3,7 +3,6 @@
 #include "constants.h"
 #include "Game.h"
 #include "Referee.h"
-#include "Player.h"
 #include "Board.h"
 
 
@@ -92,7 +91,7 @@ public:
 		cout << "Before display" <<endl;
 		myBoard.display();  //send string back to server eventually FIX THIS
 		cout << "Before setOpponentBoard" << endl;
-		opponent->setBoard(&myBoard);
+		// opponent->setBoard(&myBoard);
 		
 		// cout << name << ", it is now your turn. Please enter your column choice.\n";
 

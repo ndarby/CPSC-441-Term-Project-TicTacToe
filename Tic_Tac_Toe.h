@@ -5,11 +5,34 @@
 
 
 #include <string>
+#include "Referee.h"
+#include "Player.h"
+#include "Board.h"
+#include "Game.h"
 
 using namespace std;
 
-int run(string x, string o);
+class TicTacToe{
 
-string makeMove(bool xTurn, int col, int row);
+public:
+	Player xPlayer;
+	Player oPlayer;
+	Board theBoard;
+	Referee theRef;
+	Game theGame;
+
+	TicTacToe(){
+		theBoard = Board();
+		theRef = Referee();
+		theGame = Game();
+	}
+
+	int run(string x, string o);
+
+	string makeMove(bool xTurn, int col, int row);
+
+};
+
+
 
 #endif

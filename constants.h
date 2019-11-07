@@ -7,11 +7,6 @@
 #include <stdlib.h>
 using namespace std;
 
-#include "Game.h"
-#include "Referee.h"
-#include "Player.h"
-#include "Board.h"
-
 
 
 #define SPACE_CHAR ' '
