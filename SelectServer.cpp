@@ -30,8 +30,16 @@ void processSockets (fd_set);
 void sendData (int, char[], int);
 void receiveData (int, char[], int&);
 
-string list();
-string get(string filename);
+int xPlayerSock;
+int oPlayerSock;
+
+bool xPlayerSet = false;
+bool oPlayerSet = false;
+
+bool xPlayerTurn = true;
+
+// string list();
+// string get(string filename);
 
 int main(int argc, char *argv[])
 {
@@ -90,6 +98,19 @@ int main(int argc, char *argv[])
                 break;
             cout << "Accepted a TCP connection from " << inet_ntoa(clientAddr.sin_addr) << ":" << clientAddr.sin_port << endl;
             
+            //sets the IP address to either the xPlayer or the oPlayer
+            if(!xPlayerSet){
+            	xPlayerSock = clientSock;
+            	xPlayerSet = true;
+            }else if(xPlayerSet && !oPlayerSet){
+            	oPlayerSock = clientSock;
+            	oPlayerSet = true;
+            	run("xPlayer", "oPlayer"); //FIX THIS add usernames later
+            }else{
+            	cout << "Player is not able to be added to the game." << endl;
+            }
+
+
             // Add the new connection to the receive socket set
             FD_SET(clientSock, &recvSockSet);
             maxDesc = max(maxDesc, clientSock);
@@ -253,9 +274,25 @@ void receiveData (int sock, char* inBuffer, int& size)
     cout << "Client: " << msg;
 }
 
-void sendData (int sock, char* buffer, int size)
-{
-    int bytesSent = 0;                   // Number of bytes sent
+
+void sendData(int sock, char* buffer, int size){
+
+	int col = (int)buffer[0];
+	int row = (int)buffer[2];
+	if(sock == xPlayerSock && xPlayerTurn){
+		//make a move with xplayer
+		makeMove(xPlayerTurn, col, row);
+		xPlayerTurn = false;
+	}else if(sock == oPlayerSock && !xPlayerTurn){
+		//make a move with the oPlayer
+		makeMove(xPlayerTurn, col, row);
+		xPlayerTurn = true;
+	}
+}
+
+// void sendData (int sock, char* buffer, int size)
+// {
+//     int bytesSent = 0;                   // Number of bytes sent
     
     // Sent the data
     // bytesSent += send(sock, (char *) buffer + bytesSent, size - bytesSent, 0);
@@ -293,8 +330,6 @@ void sendData (int sock, char* buffer, int size)
     //     bytesSent += send(sock, (char *) buffer + bytesSent, size - bytesSent, 0);
     // }
 
-    run();
-
     // if (bytesSent < 0 || bytesSent != size)
     // {
     //     cout << "error in sending" << endl;
@@ -303,57 +338,57 @@ void sendData (int sock, char* buffer, int size)
     
     // if (strncmp(buffer, "terminate", 9) == 0)
     //     terminated = true;
-}
+// }
 
-string list(){
-    // Execute the "ls" command and save the output to /tmp/temp.txt.
-    // /tmp is a special directory storing temporate files in Linux.
-    system("ls > /tmp/temp.txt");
+// string list(){
+//     // Execute the "ls" command and save the output to /tmp/temp.txt.
+//     // /tmp is a special directory storing temporate files in Linux.
+//     system("ls > /tmp/temp.txt");
     
-    // Open the file
-    ifstream infile;
-    infile.open("/tmp/temp.txt");
+//     // Open the file
+//     ifstream infile;
+//     infile.open("/tmp/temp.txt");
     
-    // Store the file content into a string
-    string line;
-    string data = "";
-    while (getline(infile, line))
-    {
-        data += line + "\n";
-    }
+//     // Store the file content into a string
+//     string line;
+//     string data = "";
+//     while (getline(infile, line))
+//     {
+//         data += line + "\n";
+//     }
     
-    // Close the file
-    infile.close();
+//     // Close the file
+//     infile.close();
 
-    return data;
-}
+//     return data;
+// }
 
-string get(string filename){
-    // Open the file for input
-    // cout << "Open file: " << filename << endl;
-    ifstream infile;
-    infile.open(filename.c_str());
+// string get(string filename){
+//     // Open the file for input
+//     // cout << "Open file: " << filename << endl;
+//     ifstream infile;
+//     infile.open(filename.c_str());
 
-    // check for errors in opening the file
-    if (!infile.is_open())
-    {
-        cout << "open() failed " << endl;
-        string msg = "Error in openning file " + filename + "\n";
-        cout << msg;
-        return msg;
-    }
+//     // check for errors in opening the file
+//     if (!infile.is_open())
+//     {
+//         cout << "open() failed " << endl;
+//         string msg = "Error in openning file " + filename + "\n";
+//         cout << msg;
+//         return msg;
+//     }
     
-    // Read the file line by line
-    string data;
-    string line;
-    while (getline(infile, line))
-    {
-        line += "\n";
-        data += line;
-    }
+//     // Read the file line by line
+//     string data;
+//     string line;
+//     while (getline(infile, line))
+//     {
+//         line += "\n";
+//         data += line;
+//     }
 
-    return data;
-}
+//     return data;
+// }
 
 
     

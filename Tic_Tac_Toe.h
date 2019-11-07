@@ -4,6 +4,12 @@
 #define TIC_TAC_TOE_H
 
 
-int run(void);
+#include <string>
+
+using namespace std;
+
+int run(string x, string o);
+
+string makeMove(bool xTurn, int col, int row);
 
 #endif

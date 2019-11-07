@@ -57,7 +57,7 @@ public:
 
 
 
-	void play(){
+	void play(int col, int row){
 		if(myBoard.xWins()) {
 			myBoard.display();
 			printf("\nThe winner is player X\n");
@@ -73,7 +73,7 @@ public:
 			printf("\nNo winner\n");
 			exit(0);
 		}
-		makeMove();
+		makeMove(col, row);
 		
 	}
 	/**
@@ -83,40 +83,47 @@ public:
 	 * @throws NumberFormatException
 	 * @throws IOException
 	 */
-	void makeMove(){
-		int col = 0, row = 0;
-		string temp;
+	void makeMove(int col, int row){
 		
-		cout << name << ", it is now your turn. Please enter your column choice.\n";
 
-		getline(cin, temp);
-		col = stoi(temp);	//converts to int in column from string read from line
-
-		cout << "Please enter your row choice.\n";
-
-		getline(cin, temp);
-		row = stoi(temp);	//converts to int in column from string read from line
-
-		while(true)
-		{
-			if(myBoard.getMark(row,col) == SPACE_CHAR)
-				break;
-			else {
-				printf("Sorry, that spot is taken. Please enter a column\n");
-				getline(cin, temp);
-				col = stoi(temp);
-
-				printf("Please enter a row\n");
-				getline(cin, temp);
-				row = stoi(temp);
-			}
+		if(myBoard.getMark(row, col) == SPACE_CHAR){
+			myBoard.addMark(row, col, mark);
 		}
-		myBoard.addMark(row, col, mark);
-		myBoard.display();
+		cout << "Before display" <<endl;
+		myBoard.display();  //send string back to server eventually FIX THIS
+		cout << "Before setOpponentBoard" << endl;
+		opponent->setBoard(&myBoard);
+		
+		// cout << name << ", it is now your turn. Please enter your column choice.\n";
+
+		// getline(cin, temp);
+		// col = stoi(temp);	//converts to int in column from string read from line
+
+		// cout << "Please enter your row choice.\n";
+
+		// getline(cin, temp);
+		// row = stoi(temp);	//converts to int in column from string read from line
+
+		// while(true)
+		// {
+		// 	if(myBoard.getMark(row,col) == SPACE_CHAR)
+		// 		break;
+		// 	else {
+		// 		printf("Sorry, that spot is taken. Please enter a column\n");
+		// 		getline(cin, temp);
+		// 		col = stoi(temp);
+
+		// 		printf("Please enter a row\n");
+		// 		getline(cin, temp);
+		// 		row = stoi(temp);
+		// 	}
+		// }
+		// myBoard.addMark(row, col, mark);
+		// myBoard.display();
 		
 
-		opponent->setBoard(&myBoard);		//Passing the updated board to the opponent. This will need to be done over TCP
-		opponent->play();					//Passing your turn to the opponent
+		// opponent->setBoard(&myBoard);		//Passing the updated board to the opponent. This will need to be done over TCP
+		// opponent->play();					//Passing your turn to the opponent
 	}
 
 };

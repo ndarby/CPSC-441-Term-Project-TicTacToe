@@ -38,7 +38,7 @@ public:
 		oPlayer.setOpponent(&xPlayer);
 
 		theBoard.display();
-		xPlayer.play();
+		// xPlayer.play();
 	}
 
 };
