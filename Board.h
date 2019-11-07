@@ -2,17 +2,6 @@
 #ifndef HEADER
 #define HEADER
 #include "constants.h"
-#include "Game.h"
-#include "Referee.h"
-#include "Player.h"
-#include "Board.h"
-
-
-#define SPACE_CHAR ' '
-#define LETTER_O 'O'
-#define LETTER_X 'X'
-
-
 
 
 class Board {       // The class

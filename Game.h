@@ -1,4 +1,3 @@
-#pragma once
 #ifndef GAME
 #define GAME
 
@@ -10,22 +9,21 @@
 class Game {
 
 private:
-		Board theBoard;
-		Referee theRef;
+    Board theBoard;
+    Referee theRef;
 public:
 
-	Game() {
-		//no initilization as C++ does this automatically
-	}
+    Game() {
+        //no initilization as C++ does this automatically
+    }
 
 
-	void appointReferee(Referee r){
-		theRef = r;
-		theRef.runTheGame();
-	}
-	//TODO
-	
+    void appointReferee(Referee r) {
+        theRef = r;
+        theRef.runTheGame();
+    }
+    //TODO
+
 };
-
 
 #endif // !GAME

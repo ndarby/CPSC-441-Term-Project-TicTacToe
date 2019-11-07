@@ -5,13 +5,9 @@
 #include "Referee.h"
 #include "Board.h"
 
-
-
 #define SPACE_CHAR ' '
 #define LETTER_O 'O'
 #define LETTER_X 'X'
-
-
 
 class Player {
 
