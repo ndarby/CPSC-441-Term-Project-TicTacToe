@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
     }
 
 
-    cout << "Please enter a message to be sent to the server ('logout' to terminate): ";
+    cout << "Please make a move ('logout' to terminate): ";
     fgets(outBuffer, BUFFERSIZE, stdin);
     while (strncmp(outBuffer, "logout", 6) != 0) {
         msgLength = strlen(outBuffer);
@@ -81,29 +81,34 @@ int main(int argc, char *argv[]) {
             exit(1);
         }
         // Receive the response from the server
-        // bytesRecv = recv(sock, (char *) &inBuffer, sizeof(inBuffer), 0);
         string receivedData;
-        bytesRecv = 0;
-        int total = 0;
-        do {
-            bytesRecv = recv(sock, (char *) &inBuffer + total, BUFFERSIZE, 0);
-            total += bytesRecv;
-            receivedData = receivedData + inBuffer;
-        } while (bytesRecv == 32);
+        bytesRecv = recv(sock, (char *) &inBuffer, sizeof(inBuffer), 0);
+        receivedData = receivedData + iinBuffer;
+        // string receivedData;
+        // bytesRecv = 0;
+        // int total = 0;
+        // do {
+        //     bytesRecv = recv(sock, (char *) &inBuffer, BUFFERSIZE, 0);
+        //     total += bytesRecv;
+        //     receivedData = receivedData + inBuffer;
+        // } while (bytesRecv == 32);
 
         // Check for connection close (0) or errors (< 0)
-        // if (bytesRecv <= 0)
-        // {
-        //     cout << "recv() failed, or the connection is closed. " << endl;
-        //     exit(1); 
-        // }
-        cout << "Server: " << receivedData << endl;
+        if (bytesRecv <= 0)
+        {
+            cout << "recv() failed, or the connection is closed. " << endl;
+            exit(1); 
+        }
+        cout << "Server: \n" << receivedData << endl;
 
 
         // Clear the buffers
         memset(&outBuffer, 0, BUFFERSIZE);
         memset(&inBuffer, 0, BUFFERSIZE);
-        cout << "Please enter a message to be sent to the server ('logout' to terminate): ";
+        recv(sock, (char *) &inBuffer, BUFFERSIZE, 0);
+        receivedData = inBuffer;
+        cout << receivedData << endl;
+        cout << "Please make a move ('logout' to terminate): ";
         fgets(outBuffer, BUFFERSIZE, stdin);
     }
 

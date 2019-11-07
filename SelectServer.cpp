@@ -302,12 +302,10 @@ void sendData(int sock, char* buffer, int size){
 		sendToPlayer = "Error: Waiting for opponent to make a move...";
 	}
 
-	int bytesSent;
-	int n = sendToPlayer.length()/BUFFERSIZE;
-	for(int i = 0; i < n; i++){
-		bytesSent += send(sock, sendToPlayer.c_str() + bytesSent, sendToPlayer.length() - bytesSent, 0);
-	}
-	// send(sock, sendToPlayer.c_str(), sendToPlayer.length(), 0);
+	send(sock, sendToPlayer.c_str(), sendToPlayer.length(), 0);
+	// send(xPlayerSock, sendToPlayer.c_str(), sendToPlayer.length(), 0);
+	// send(oPlayerSock, sendToPlayer.c_str(), sendToPlayer.length(), 0);
+
 
 	return;
 }
