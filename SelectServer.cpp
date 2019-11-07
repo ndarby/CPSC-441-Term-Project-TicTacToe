@@ -285,19 +285,29 @@ void receiveData (int sock, char* inBuffer, int& size)
 
 void sendData(int sock, char* buffer, int size){
 
-	int col = (int)buffer[0];
-	int row = (int)buffer[2];
+	string sendToPlayer;
+	int col = buffer[0]-'0';
+	int row = buffer[2]-'0';
 	if((sock == xPlayerSock) && xPlayerTurn){
 		//make a move with xplayer
-		theGame.makeMove(xPlayerTurn, col, row);
+		sendToPlayer = theGame.makeMove(xPlayerTurn, col, row);
 		xPlayerTurn = false;
 	}else if((sock == oPlayerSock) && (!xPlayerTurn)){
 		//make a move with the oPlayer
-		theGame.makeMove(xPlayerTurn, col, row);
+		sendToPlayer = theGame.makeMove(xPlayerTurn, col, row);
 		xPlayerTurn = true;
+	}else if((sock == xPlayerSock) && !xPlayerTurn){
+		sendToPlayer = "Error: Waiting for opponent to make a move...";
+	}else if((sock == oPlayerSock) && xPlayerTurn){
+		sendToPlayer = "Error: Waiting for opponent to make a move...";
 	}
 
-	send(sock, buffer, size, 0);
+	int bytesSent;
+	int n = sendToPlayer.length()/BUFFERSIZE;
+	for(int i = 0; i < n; i++){
+		bytesSent += send(sock, sendToPlayer.c_str() + bytesSent, sendToPlayer.length() - bytesSent, 0);
+	}
+	// send(sock, sendToPlayer.c_str(), sendToPlayer.length(), 0);
 
 	return;
 }

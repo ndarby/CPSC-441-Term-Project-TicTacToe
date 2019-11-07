@@ -2,6 +2,7 @@
 #ifndef HEADER
 #define HEADER
 #include "constants.h"
+#include <string>
 
 
 class Board {       // The class
@@ -164,6 +165,59 @@ public:             // Access specifier
 			printf("|     ");
 		printf("|\n");
 	}
+
+
+
+	string currentBoard(){
+		string b;
+		b = b + ColumnHeaders();
+		b = b + Hyphens();
+		for (int row = 0; row < 3; row++) {
+			b = b + Spaces();
+			b = b + "  row " + to_string(row) + "   ";
+			for (int col = 0; col < 3; col++)
+				b = b + "|  " + getMark(row, col) + "  ";
+			b = b + "|\n";
+			b = b + Spaces();
+			b = b + Hyphens();
+		}
+		return b;
+	}
+
+	/**
+	 * returns the column headers with appropriate indexes as a string
+	 */
+	string ColumnHeaders() {
+		string c;
+		c = c + "          ";
+		for (int j = 0; j < 3; j++)
+			c = c + "|col " + to_string(j);
+		c = c + "\n" ;
+		return c;
+	}
+	/**
+	 * returns the hyphens present on the board as a string
+	 */
+	string Hyphens() {
+		string h;
+		h = h + "          ";
+		for (int j = 0; j < 3; j++)
+			h = h + "+-----";
+		h = h + "+\n";
+		return h;
+	}
+	/**
+	 * Insures visually spaces are applied to the board
+	 */
+	string Spaces() {
+		string s;
+		s = s + "          ";
+		for (int j = 0; j < 3; j++)
+			s = s + "|     ";
+		s = s + "|\n";
+		return s;
+	}
+
 };
 
 
