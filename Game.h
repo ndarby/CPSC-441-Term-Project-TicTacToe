@@ -3,11 +3,9 @@
 #define GAME
 
 #include "constants.h"
-#include "Game.h"
 #include "Referee.h"
 #include "Player.h"
 #include "Board.h"
-
 
 class Game {
 

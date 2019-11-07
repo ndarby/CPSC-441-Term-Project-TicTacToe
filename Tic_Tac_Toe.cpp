@@ -10,37 +10,28 @@
 #include <stdlib.h>
 using namespace std;
 
-#include "Game.h"
-#include "Referee.h"
-#include "Player.h"
-#include "Board.h"
 #include "Tic_Tac_Toe.h"
 
 
-Player xPlayer;
-Player oPlayer;
-Board theBoard;
-Referee theRef;
-Game theGame;
 
-int run(string x, string o)
+int TicTacToe::run(string x, string o)
 {
 	//So roughly there should be a communicate with server and communciate with client functions here. We'll be using switch statments to get the user able to interact with the server
 	
-	Board theBoard;
-	Referee theRef;
-	Game theGame;
+	// Board theBoard;
+	// Referee theRef;
+	// Game theGame;
 	// string name;
 
 	// printf("\nPlease enter the name of the \'X\' player: ");
 	// getline(cin, name);
 
-	Player xPlayer(x, 'X', &theBoard); 
+	xPlayer = Player(x, 'X', &theBoard); 
 
 	// printf("\nPlease enter the name of the \'O\' player: ");
 	// getline(cin, name);
 
-	Player oPlayer(o, 'O', &theBoard);
+	oPlayer = Player(o, 'O', &theBoard);
 
 	cout << oPlayer.getMark() << endl;
 	cout << oPlayer.getName() << endl;
@@ -58,7 +49,7 @@ int run(string x, string o)
 	
 }
 
-string makeMove(bool xTurn, int col, int row){
+string TicTacToe::makeMove(bool xTurn, int col, int row){
 	if(xTurn){
 		xPlayer.play(col, row);
 	}else{
