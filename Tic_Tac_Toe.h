@@ -5,10 +5,8 @@
 
 
 #include <string>
-#include "Referee.h"
 #include "Player.h"
 #include "Board.h"
-#include "Game.h"
 
 using namespace std;
 
@@ -18,16 +16,11 @@ public:
 	Player xPlayer;
 	Player oPlayer;
 	Board theBoard;
-	Referee theRef;
-	Game theGame;
 
 	TicTacToe(){
-		theBoard = Board();
-		theRef = Referee();
-		theGame = Game();
 	}
 
-	int run(string x, string o);
+	int setup(string x, string o);
 
 	string makeMove(bool xTurn, int col, int row);
 

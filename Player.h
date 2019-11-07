@@ -1,8 +1,6 @@
 #pragma once
 
 #include "constants.h"
-#include "Game.h"
-#include "Referee.h"
 #include "Board.h"
 
 #define SPACE_CHAR ' '
@@ -14,8 +12,8 @@ class Player {
 protected:
 	string name;
 	char mark;
-	Board myBoard;
-	Player* opponent;
+	Board* myBoard;
+	// Player* opponent;
 	//RandomGenerator myRanNum;
 	/**
 	 * Constructs the Player object with the players name and their mark.
@@ -29,7 +27,7 @@ public:
 	Player(string n, char m, Board* b) {
 		name = n;
 		mark = m;
-		myBoard = *b;
+		myBoard = b;
 		//myRanNum = new RandomGenerator();
 	}
 	
@@ -41,30 +39,30 @@ public:
 		return mark;
 	}
 	
-	void setOpponent(Player* p) {
-		opponent = p;
-	}
+	// void setOpponent(Player* p) {
+	// 	opponent = p;
+	// }
 
-	void setBoard(Board* b) {
-		myBoard = *b;
-	}
+	// void setBoard(Board* b) {
+	// 	myBoard = *b;
+	// }
 
 
 
 
 	void play(int col, int row){
-		if(myBoard.xWins()) {
-			myBoard.display();
+		if(myBoard->xWins()) {
+			myBoard->display();
 			printf("\nThe winner is player X\n");
 			exit(0);
 		}
-		else if(myBoard.oWins()) {
-			myBoard.display();
+		else if(myBoard->oWins()) {
+			myBoard->display();
 			printf("\nThe winner is player O\n");
 			exit(0);
 		}
-		else if(myBoard.isFull()) {
-			myBoard.display();
+		else if(myBoard->isFull()) {
+			myBoard->display();
 			printf("\nNo winner\n");
 			exit(0);
 		}
@@ -81,44 +79,11 @@ public:
 	void makeMove(int col, int row){
 		
 
-		if(myBoard.getMark(row, col) == SPACE_CHAR){
-			myBoard.addMark(row, col, mark);
+		if(myBoard->getMark(row, col) == SPACE_CHAR){
+			myBoard->addMark(row, col, mark);
 		}
-		cout << "Before display" <<endl;
-		myBoard.display();  //send string back to server eventually FIX THIS
-		cout << "Before setOpponentBoard" << endl;
-		// opponent->setBoard(&myBoard);
-		
-		// cout << name << ", it is now your turn. Please enter your column choice.\n";
 
-		// getline(cin, temp);
-		// col = stoi(temp);	//converts to int in column from string read from line
-
-		// cout << "Please enter your row choice.\n";
-
-		// getline(cin, temp);
-		// row = stoi(temp);	//converts to int in column from string read from line
-
-		// while(true)
-		// {
-		// 	if(myBoard.getMark(row,col) == SPACE_CHAR)
-		// 		break;
-		// 	else {
-		// 		printf("Sorry, that spot is taken. Please enter a column\n");
-		// 		getline(cin, temp);
-		// 		col = stoi(temp);
-
-		// 		printf("Please enter a row\n");
-		// 		getline(cin, temp);
-		// 		row = stoi(temp);
-		// 	}
-		// }
-		// myBoard.addMark(row, col, mark);
-		// myBoard.display();
-		
-
-		// opponent->setBoard(&myBoard);		//Passing the updated board to the opponent. This will need to be done over TCP
-		// opponent->play();					//Passing your turn to the opponent
+		myBoard->display();  //send string back to server eventually FIX THIS
 	}
 
 };

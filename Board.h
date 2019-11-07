@@ -1,4 +1,4 @@
-#pragma once
+
 #ifndef HEADER
 #define HEADER
 #include "constants.h"
