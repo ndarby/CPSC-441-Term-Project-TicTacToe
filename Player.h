@@ -36,8 +36,6 @@ public:
 
     void setUser(User *user);
 
-    bool checkWin();
-
 };
 
 #endif
