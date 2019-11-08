@@ -32,6 +32,10 @@ public:
     Player *getXPlayer() const;
 
     Player *getOPlayer() const;
+
+    bool xWins();
+
+    bool oWins();
 };
 
 

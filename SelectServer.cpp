@@ -18,7 +18,7 @@ int maxDesc = 0;      // The max descriptor
 bool terminated = false;
 
 vector<Game> activeGames = {
-        Game(),
+        Game()
 
 };
 
@@ -201,15 +201,17 @@ ServerCommand processData(string data) {
 }
 
 void processMove(int sock, string data) {
-    int col = data[0] - '0';
-    int row = data[2] - '0';
+    int col = (int)data.c_str()[0] - '0';
+    int row = (int)data.c_str()[2] - '0';
 
     User* currentUser = activeUsers[sock];
 
     if (currentUser->getPlayer()->play(col, row)) { //valid move
         sendData(sock, "MOVE SUCCESS");
         sendData(sock, currentUser->getPlayer()->getGame()->sendState());
-    } else {
+    }else if(currentUser->getPlayer()->checkWin()){
+    	sendData(sock, "WIN");
+    }else {
         sendData(sock, "MOVE FAILED");
     }
 

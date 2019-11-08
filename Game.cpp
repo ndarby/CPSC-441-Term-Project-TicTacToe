@@ -6,6 +6,8 @@
 Game::Game() {
     board = new Board();
     currentTurn = xTurn;
+    xPlayer = NULL;
+    oPlayer = NULL;
 }
 
 
@@ -66,5 +68,13 @@ Player *Game::getXPlayer() const {
 
 Player *Game::getOPlayer() const {
     return oPlayer;
+}
+
+bool xWins(){
+    return board->xWins();
+}
+
+bool oWins(){
+    return board->oWins();
 }
 

@@ -182,17 +182,17 @@ string getValidInput() {
 
     while (true) {
         char input[BUFFERSIZE];
-        fgets(input, BUFFERSIZE, stdin);
+        // fgets(input, BUFFERSIZE, stdin);		//TODO Fix this for addition of logout feature
 
-        if (strncmp(input, "logout", 6) == 0) {
-            return "logout";
-        } else {
+        // if (strncmp(input, "logout", 6) == 0) {
+        //     return "logout";
+        // } else {
             int row = -1, col = -1;
             // sscanf(input, "%d %d", &row, &col);
-            string input;
-            getline(cin, input);
-            row = input.c_str()[0] - '0';
-            col = input.c_str()[2] - '0';
+            string sInput;
+            getline(cin, sInput);
+            row = (int)sInput.c_str()[0] - '0';
+            col = (int)sInput.c_str()[2] - '0';
             cout << "row: " << row << " col: " << col << endl;
             if ((row >= 0) && (row <= 2)) {
                 if ((col <= 2) && (col >= 0)) {
@@ -205,7 +205,7 @@ string getValidInput() {
                     return string(input);
                 }
             }
-        }
+        // }
         cout << "invalid input" << endl;
     }
 }
