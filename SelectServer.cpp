@@ -7,7 +7,6 @@
 #include "SelectServer.h"
 #include "Game.h"
 #include "User.h"
-#include "Player.h"
 
 using namespace std;
 
@@ -25,6 +24,14 @@ vector<Game> activeGames = {
 
 std::map<int, User*> activeUsers = map<int, User*>();
 
+vector<User> registeredUsers = {
+        User("Greg"),
+        User("Nathan"),
+        User("Auguste"),
+        User("Grigory"),
+        User("Bob"),
+        User("Alex")
+};
 
 int main(int argc, char *argv[]) {
 
@@ -201,6 +208,7 @@ void processMove(int sock, string data) {
 
     if (currentUser->getPlayer()->play(col, row)) { //valid move
         sendData(sock, "MOVE SUCCESS");
+        sendData(sock, currentUser->getPlayer()->getGame()->sendState());
     } else {
         sendData(sock, "MOVE FAILED");
     }
@@ -229,15 +237,20 @@ void sendData(int sock, string data) {
 
     cout << "Sending to client: " << data << endl;
 
-
+    const char *toSend = data.c_str();
     int bytesSent = 0;
     int totalBytesToSend = data.length();
     int messageLength = 0;
 
     while (totalBytesToSend != 0) {
+        if (totalBytesToSend < BUFFERSIZE) {
+            messageLength = totalBytesToSend;
+        } else {
+            messageLength = BUFFERSIZE;
+        }
 
-        bytesSent = send(sock, data.c_str(), data.length(), 0);
-        
+        bytesSent = send(sock, &toSend[bytesSent], messageLength, 0);
+
         totalBytesToSend -= bytesSent;
     }
 
@@ -246,7 +259,7 @@ void sendData(int sock, string data) {
 
 void loginUser(int sock, string userName) {
     bool userLoggedIn = false;
-    for (int i = 0; i <= activeUsers.size(); i++) {
+    for (int i = 0; i <= registeredUsers.size(); i++) {
         if ((registeredUsers[i].getUserName() == userName) && registeredUsers[i].attemptLogin()) {
             sendData(sock, "LOGIN SUCCESS");
             userLoggedIn = true;

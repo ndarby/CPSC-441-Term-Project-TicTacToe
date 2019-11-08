@@ -1,4 +1,3 @@
-#include "Player.h"
 
 Player::Player(std::string userName) {
     this->userName = userName;
@@ -20,6 +19,19 @@ void Player::setMark(Mark mark) {
 void Player::setGame(Game *game) {
     Player::game = game;
 }
+
+Game *Player::getGame() const {
+    return game;
+}
+
+User *Player::getUser() const {
+    return user;
+}
+
+void Player::setUser(User *user) {
+    Player::user = user;
+}
+
 
 
 

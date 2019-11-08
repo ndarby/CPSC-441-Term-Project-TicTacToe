@@ -1,9 +1,10 @@
 #include <string>
-#include "Game.h"
+#include "constants.h"
+
 
 using namespace std;
 
-class Game;
+class User;
 
 class Player {
 private:
@@ -14,6 +15,7 @@ private:
     string userName;
     Mark mark;
     Game* game;
+    User* user;
 
 public:
     Player(string userName);
@@ -23,5 +25,11 @@ public:
     Mark getMark() const;
 
     bool play(int col, int row);
+
+    Game *getGame() const;
+
+    User *getUser() const;
+
+    void setUser(User *user);
 
 };

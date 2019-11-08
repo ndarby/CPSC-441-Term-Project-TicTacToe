@@ -2,10 +2,6 @@
 // Created by Greg on 2019-11-07.
 //
 
-#include "Game.h"
-#include "Player.h"
-#include "Board.h"
-
 Game::Game() {
     board = new Board();
     currentTurn = xTurn;
@@ -26,6 +22,10 @@ bool Game::makeMove(int row, int col, Mark mark) {
         charMark = O_MARK;
     }
 
+    if (board->checkWinner(charMark)) {
+
+    }
+
     if (board->getMark(row, col) == SPACE_CHAR) {
         board->addMark(row, col, charMark);
         switchTurn();
@@ -33,9 +33,6 @@ bool Game::makeMove(int row, int col, Mark mark) {
     } else {
         return false;
     }
-
-
-
 }
 
 void Game::switchTurn() {
@@ -56,5 +53,17 @@ void Game::setPlayer(Player* player) {
     }
 
     player->setGame(this);
+}
+
+string Game::sendState() {
+    return board->currentBoard();
+}
+
+Player *Game::getXPlayer() const {
+    return xPlayer;
+}
+
+Player *Game::getOPlayer() const {
+    return oPlayer;
 }
 

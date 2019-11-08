@@ -15,10 +15,6 @@
 #include <map>
 
 #include "constants.h"
-#include "User.h"
-
-class Player;
-
 
 void initServer(int &, int port);
 
@@ -38,13 +34,5 @@ void processMove(int sock, string data);
 
 void putUserInGame(int sock);
 
-vector<User> registeredUsers = {
-        User("Greg"),
-        User("Nathan"),
-        User("Auguste"),
-        User("Grigory"),
-        User("Bob"),
-        User("Alex")
-};
 
 #endif //CPSC_441_TERM_PROJECT_TICTACTOE_SELECTSERVER_H

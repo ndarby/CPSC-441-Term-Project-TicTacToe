@@ -4,7 +4,6 @@
 
 #include "User.h"
 
-
 const string &User::getUserName() const {
     return userName;
 }
@@ -56,6 +55,7 @@ Player *User::getPlayer() const {
 
 void User::setPlayer(Player *player) {
     User::player = player;
+    player->setUser(this);
 }
 
 

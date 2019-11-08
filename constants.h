@@ -3,11 +3,11 @@
 
 #include <cstddef>
 
+using namespace std;
+
 #define SPACE_CHAR ' '
 #define O_MARK 'O'
 #define X_MARK 'X'
-
-using namespace std;
 
 enum ServerCommand {
     login, leaderboard, makeMove, startgame
@@ -24,4 +24,11 @@ enum Mark {
 enum Turn {
     xTurn, oTurn
 };
+
+#include "Board.h"
+#include "Game.h"
+#include "User.h"
+#include "Player.h"
+#include "SelectServer.h"
+
 #endif // !CONSTANTS

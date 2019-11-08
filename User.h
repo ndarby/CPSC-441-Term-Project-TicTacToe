@@ -4,7 +4,10 @@
 
 #ifndef CPSC_441_TERM_PROJECT_TICTACTOE_USER_H
 #define CPSC_441_TERM_PROJECT_TICTACTOE_USER_H
+
 #include <string>
+
+#include "Game.h"
 #include "constants.h"
 
 class Player;
@@ -26,7 +29,7 @@ public:
     void setPlayer(Player *player);
 
 private:
-    Player* player;
+    Player *player;
 
 public:
     User(string userName);

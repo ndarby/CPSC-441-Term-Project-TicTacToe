@@ -70,14 +70,32 @@ void menuOptions(int sock) {
 void enterGame(int sock) {
     string userInput = " ";
     string dataFromServer;
-    while (userInput != "logout") {
+    bool endGame = false;
+
+    cout << "Start of game" << endl;
+    while (!endGame) {
+        //dataFromServer = receiveData(sock);
+        //cout << dataFromServer;
 
         userInput = getValidInput();
-
-        cout << "userInput: " << userInput << endl;
         sendData(sock, userInput);
 
         dataFromServer = receiveData(sock);
+
+        if(dataFromServer == "MOVE SUCCESS") {
+            cout << "Nice move. Wait for opponent" << endl;
+            dataFromServer = receiveData(sock);
+        } else if (dataFromServer == "MOVE FAILED") {
+            cout << "Illegal move. Try again" << endl;
+            continue;
+
+        } else if (dataFromServer == "WIN") {
+            cout << "You won!" << endl;
+            endGame = true;
+        } else if (dataFromServer == "LOSS") {
+            cout << "You lost" << endl;
+            endGame = true;
+        }
 
     }
 }
@@ -111,7 +129,7 @@ string receiveData(int sock) {
         }
 
         memset(&inBuffer, 0, BUFFERSIZE);
-    
+
     } while (bytesRecv == BUFFERSIZE);
 
     cout << "Server: \n" << dataReceived <<
@@ -151,7 +169,7 @@ void attemptLogin(int sock) {
         sendData(sock, serverString);
         serverResponse = receiveData(sock);
 
-        if (serverResponse == "LOGIN SUC") {
+        if (serverResponse == "LOGIN SUCCESS") {
             break;
         }
         cout << "Invalid user name. Try again" << endl;
