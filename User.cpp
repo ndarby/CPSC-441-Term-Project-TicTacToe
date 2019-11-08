@@ -58,4 +58,12 @@ void User::setPlayer(Player *player) {
     player->setUser(this);
 }
 
+int User::getSock() const {
+    return sock;
+}
+
+void User::setSock(int sock) {
+    User::sock = sock;
+}
+
 

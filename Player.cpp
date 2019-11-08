@@ -3,7 +3,6 @@
 
 Player::Player(std::string userName) {
     this->userName = userName;
-    this->mark = mark;
 }
 
 bool Player::play(int col, int row) {
@@ -33,6 +32,7 @@ User *Player::getUser() const {
 void Player::setUser(User *user) {
     Player::user = user;
 }
+
 
 
 

@@ -22,6 +22,13 @@ private:
     int loses;
     int draws;
     int totalGames;
+    int sock;
+public:
+    int getSock() const;
+
+    void setSock(int sock);
+
+private:
     bool currentlyOnline;
 
 public:
