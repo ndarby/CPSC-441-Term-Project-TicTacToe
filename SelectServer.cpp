@@ -24,7 +24,7 @@ fd_set recvSockSet;   // The set of descriptors for incoming connections
 int maxDesc = 0;      // The max descriptor
 bool terminated = false;
 
-void initServer(int &, int &, int port);
+void initServer(int &, int port);
 
 void processSockets(fd_set);
 
@@ -47,7 +47,6 @@ TicTacToe theGame = TicTacToe();
 int main(int argc, char *argv[]) {
 
     int TCPSock;                  // server socket descriptor
-    int UDPSock;
     int clientSock;                  // client socket descriptor
     struct sockaddr_in clientAddr;   // address of the client
 
@@ -62,7 +61,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Initilize the server
-    initServer(TCPSock, UDPSock, atoi(argv[1]));
+    initServer(TCPSock, atoi(argv[1]));
     cout << "\nServer init successful" << endl;
 
     // Clear the socket sets    
@@ -70,8 +69,7 @@ int main(int argc, char *argv[]) {
 
     // Add the listening socket to the set
     FD_SET(TCPSock, &recvSockSet);
-    FD_SET(UDPSock, &recvSockSet);
-    maxDesc = max(TCPSock, UDPSock);
+    maxDesc = max(TCPSock, 0);
 
     // Run the server until a "terminate" command is received)
     while (!terminated) {
@@ -110,64 +108,25 @@ int main(int argc, char *argv[]) {
                 cout << "Player is not able to be added to the game." << endl;
             }
 
-
-
-// PLAYERS ASSIGNED HERE
-
-
-
             // Add the new connection to the receive socket set
             FD_SET(clientSock, &recvSockSet);
             maxDesc = max(maxDesc, clientSock);
-        } else if (FD_ISSET (UDPSock, &tempRecvSockSet)) {
-            unsigned int size = sizeof(clientAddr);
-            char inBuffer[BUFFERSIZE];
-            // Clear the buffers
-            memset(&inBuffer, 0, BUFFERSIZE);
-
-            // set the size of the client address structure
-            size = sizeof(clientAddr);
-
-            // Receive the message from client
-            int bytesRecv = recvfrom(UDPSock, (char *) &inBuffer, BUFFERSIZE, 0, (struct sockaddr *) &clientAddr,
-                                     (socklen_t *) &size);
-
-            // Check for errors   
-            if (bytesRecv < 0) {
-                cout << "recvfrom() failed, or the connection is closed. " << endl;
-                exit(1);
-            }
-
-            cout << "Client " << inet_ntoa(clientAddr.sin_addr) << ":" << clientAddr.sin_port << ": " << inBuffer;
-
-            // Echo the message back to the client
-            int bytesSent = sendto(UDPSock, (char *) &inBuffer, bytesRecv, 0, (struct sockaddr *) &clientAddr,
-                                   sizeof(clientAddr));
-
-            // Check for errors
-            if (bytesSent != bytesRecv) {
-                cout << "error in sending" << endl;
-                exit(1);
-            }
-
-        }
-            // Then process messages waiting at each ready socket
-        else
+        } else {
             processSockets(tempRecvSockSet);
-    }
-    // Close the connections with the client
-    for (int sock = 0; sock <= maxDesc; sock++) {
-        if (FD_ISSET(sock, &recvSockSet))
-            close(sock);
+        }
     }
 
-    // Close the server sockets
+    for (int sock = 0; sock <= maxDesc; sock++) {
+        if (FD_ISSET(sock, &recvSockSet)) {
+            close(sock);
+        }
+    }
+
     close(TCPSock);
-    close(UDPSock);
 
 }
 
-void initServer(int &TCPSock, int &UDPSock, int port) {
+void initServer(int &TCPSock, int port) {
     struct sockaddr_in serverAddr;   // address of the server
 
     // Create a TCP socket
@@ -207,21 +166,6 @@ void initServer(int &TCPSock, int &UDPSock, int port) {
     // Listen for connection requests
     if (listen(TCPSock, MAXPENDING) < 0) {
         cout << "listen() failed" << endl;
-        exit(1);
-    }
-
-    // Create a UDP socket
-    // * AF_INET: using address family "Internet Protocol address"
-    // * SOCK_DGRAM: supports datagrams (connectionless, unreliable messages of a fixed (typically small) maximum length)
-    // * IPPROTO_UDP: UDP protocol
-    if ((UDPSock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0) {
-        cout << "socket() failed" << endl;
-        exit(1);
-    }
-
-    // Bind to the local address
-    if (bind(UDPSock, (sockaddr *) &serverAddr, sizeof(serverAddr)) < 0) {
-        cout << "bind() failed" << endl;
         exit(1);
     }
 }
@@ -267,7 +211,6 @@ void receiveData(int sock, char *inBuffer, int &size) {
     cout << "Client: " << msg << endl;
 }
 
-
 void sendData(int sock, char *buffer, int size) {
 
     string sendToPlayer;
@@ -295,6 +238,3 @@ void sendData(int sock, char *buffer, int size) {
 
     return;
 }
-
-
-    
