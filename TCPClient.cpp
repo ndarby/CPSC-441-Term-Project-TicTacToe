@@ -188,7 +188,11 @@ string getValidInput() {
             return "logout";
         } else {
             int row = -1, col = -1;
-            sscanf(input, "%d %d", &row, &col);
+            // sscanf(input, "%d %d", &row, &col);
+            string input;
+            getline(cin, input);
+            row = input.c_str()[0] - '0';
+            col = input.c_str()[2] - '0';
             cout << "row: " << row << " col: " << col << endl;
             if ((row >= 0) && (row <= 2)) {
                 if ((col <= 2) && (col >= 0)) {
