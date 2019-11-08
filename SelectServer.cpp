@@ -30,7 +30,9 @@ void processSockets(fd_set);
 
 void sendData(int, char[], int);
 
-void receiveData(int, char[], int &);
+string receiveData(int, char[], int &);
+
+ServerCommand processData(string);
 
 int xPlayerSock;
 int oPlayerSock;
@@ -182,17 +184,20 @@ void processSockets(fd_set readySocks) {
         // Clear the buffers
         memset(buffer, 0, BUFFERSIZE);
 
-        // Receive data from the client
-        receiveData(sock, buffer, size);
+        string fromClient;
 
-        // Echo the message back to the client
+        fromClient = receiveData(sock, buffer, size);
+
+
+        ServerCommand command = processData(data);
+
         sendData(sock, buffer, size);
     }
 
     delete[] buffer;
 }
 
-void receiveData(int sock, char *inBuffer, int &size) {
+string receiveData(int sock, char *inBuffer, int &size) {
     // Receive the message from client
     size = recv(sock, (char *) inBuffer, BUFFERSIZE, 0);
 
@@ -204,11 +209,20 @@ void receiveData(int sock, char *inBuffer, int &size) {
         // Update the max descriptor
         while (FD_ISSET(maxDesc, &recvSockSet) == false)
             maxDesc -= 1;
-        return;
+        return NULL;
     }
 
     string msg = string(inBuffer);
     cout << "Client: " << msg << endl;
+
+    return msg;
+}
+
+ServerCommand processData(string data) {
+
+    if (data.compare("MOVE") == 0) {
+
+    }
 }
 
 void sendData(int sock, char *buffer, int size) {

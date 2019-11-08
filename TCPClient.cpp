@@ -39,6 +39,7 @@ int main(int argc, char *argv[]) {
     while (userInput != "logout") {
 
         userInput = getValidInput();
+
         cout << "userInput: " << userInput << endl;
         sendData(sock, userInput);
 
@@ -112,6 +113,8 @@ string getValidInput() {
 
         if (strncmp(input, "logout", 6) == 0) {
             return "logout";
+        } else if (strncmp(input, "leaderboard", strlen("leaderboard")) == 0) {
+            return "leaderboard";
         } else {
             int row = -1, col = -1;
             sscanf(input, "%d %d", &row, &col);
