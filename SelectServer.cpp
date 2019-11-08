@@ -18,7 +18,9 @@ int maxDesc = 0;      // The max descriptor
 bool terminated = false;
 
 vector<Game> activeGames = {
-        Game()
+        Game(),
+        Game(),
+        Game(),
 
 };
 
@@ -201,44 +203,63 @@ ServerCommand processData(string data) {
 }
 
 void processMove(int sock, string data) {
-    int col = (int)data.c_str()[0] - '0';
-    int row = (int)data.c_str()[2] - '0';
+    int col = data[0] - '0';
+    int row = data[2] - '0';
 
     User* currentUser = activeUsers[sock];
 
     if (currentUser->getPlayer()->play(col, row)) { //valid move
-        if(currentUser->getPlayer()->checkWin()){
-    		sendData(sock, "WIN");
-    	}else{
-    		sendData(sock, "MOVE SUCCESS");
-    	}
-        sendData(sock, currentUser->getPlayer()->getGame()->sendState());
-    }else {
+        Game* game = currentUser->getPlayer()->getGame();
+        if (game->checkWin(currentUser->getPlayer())) {
+            sendData(sock, "WIN");
+
+            Player *opponent = game->getOpponent(currentUser->getPlayer());
+            sendData(opponent->getUser()->getSock(), "LOSS");
+            sendData(opponent->getUser()->getSock(), game->sendState());
+
+        }
+        sendData(sock, "MOVE SUCCESS");
+        Player *opponent = currentUser->getPlayer()->getGame()->getOpponent(currentUser->getPlayer());
+        sendData(opponent->getUser()->getSock(), opponent->getGame()->sendState());
+
+    } else {
         sendData(sock, "MOVE FAILED");
     }
-
-    
-
 
 }
 
 void putUserInGame(int sock) {
     User* user = activeUsers[sock];
+
     cout << "found sockets user " << user->getUserName() << endl;
     Player* player = new Player(user->getUserName());   //TODO this probably causes a memory leak
     user->setPlayer(player);
 
-    Game* potentialGame = &activeGames.back();
-    if (!potentialGame->isFull()) {
-        cout << "found game with a spot" << endl;
-        potentialGame->setPlayer(player);
-    } else {
-        cout << "Made new game" << endl;
-        potentialGame = new Game();
-        potentialGame->setPlayer(player);
-        activeGames.push_back(*potentialGame);
+//    if (!potentialGame->isFull()) {
+//        cout << "Found game with a spot" << endl;
+//        potentialGame->setPlayer(player);
+//    } else {
+//        cout << "Made new game" << endl;
+//        Game newGame = Game();
+//        newGame.setPlayer(player);
+//        activeGames.push_back(newGame);
+//
+//        potentialGame = &newGame;
+//    }
+    Game& potentialGame = activeGames[0];
+    int i = 1;
+    while (potentialGame.isFull()) {
+        potentialGame = activeGames[i];
+        i++;
     }
-    sendData(sock, user->getPlayer()->getGame()->sendState());
+
+    potentialGame.setPlayer(player);
+
+    if (potentialGame.isFull()) {
+        sendData(potentialGame.getOPlayer()->getUser()->getSock(), "WAIT");
+
+        sendData(potentialGame.getXPlayer()->getUser()->getSock(), potentialGame.sendState());
+    }
 }
 
 void sendData(int sock, string data) {
@@ -273,6 +294,7 @@ void loginUser(int sock, string userName) {
         if ((registeredUsers[i].getUserName() == userName) && registeredUsers[i].attemptLogin()) {
             sendData(sock, "LOGIN SUCCESS");
             userLoggedIn = true;
+            registeredUsers[i].setSock(sock);
             activeUsers[sock] = &registeredUsers[i];
             break;
         }

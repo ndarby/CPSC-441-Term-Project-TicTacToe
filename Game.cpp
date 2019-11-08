@@ -6,8 +6,6 @@
 Game::Game() {
     board = new Board();
     currentTurn = xTurn;
-    xPlayer = NULL;
-    oPlayer = NULL;
 }
 
 
@@ -25,17 +23,21 @@ bool Game::makeMove(int row, int col, Mark mark) {
         charMark = O_MARK;
     }
 
-    if (board->checkWinner(charMark)) {
-
+    if (mark == xMark) {
+        if (currentTurn != xTurn) {
+            return false;
+        }
+    } else if (currentTurn != oTurn) {
+        return false;
     }
 
     if (board->getMark(row, col) == SPACE_CHAR) {
         board->addMark(row, col, charMark);
         switchTurn();
         return true;
-    } else {
-        return false;
     }
+
+    return false;
 }
 
 void Game::switchTurn() {
@@ -70,11 +72,28 @@ Player *Game::getOPlayer() const {
     return oPlayer;
 }
 
-bool Game::xWins(){
-    return board->xWins();
+Player *Game::getOpponent(Player *player) {
+    if (player == xPlayer) {
+        return oPlayer;
+    } else {
+        return xPlayer;
+    }
 }
 
-bool Game::oWins(){
-    return board->oWins();
+bool Game::checkWin(Player *player) {
+
+    char charMark;
+
+    if (player->getMark() == xPlayer->getMark()) {
+        charMark = X_MARK;
+    } else {
+        charMark = O_MARK;
+    }
+
+
+    return board->checkWinner(charMark);
 }
+
+
+
 

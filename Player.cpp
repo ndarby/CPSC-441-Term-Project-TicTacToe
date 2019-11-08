@@ -3,7 +3,6 @@
 
 Player::Player(std::string userName) {
     this->userName = userName;
-    this->mark = mark;
 }
 
 bool Player::play(int col, int row) {
@@ -41,6 +40,7 @@ bool Player::checkWin(){
 		return game->oWins();
 	}
 }
+
 
 
 

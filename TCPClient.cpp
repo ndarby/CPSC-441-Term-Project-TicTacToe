@@ -73,40 +73,39 @@ void enterGame(int sock) {
     bool endGame = false;
 
     cout << "Start of game" << endl;
-    while (!endGame) {
-        dataFromServer = receiveData(sock);
-      
-        if(dataFromServer == "WIN"){
-        	cout << "You Won!";
-        	dataFromServer = receiveData(sock);
-        	cout << dataFromServer;
-        	return;
-        }else if(dataFromServer == "LOSS"){
-        	cout << "You Lost.";
-        	dataFromServer = receiveData(sock);
-        	cout << dataFromServer;
-        	return;
-        }
 
-        cout<< dataFromServer;
+    dataFromServer = receiveData(sock);
+    if (dataFromServer.find("WAIT") == 0) {
+        cout << "Opponent goes first" << endl;
+        dataFromServer = receiveData(sock);
+    }
+    while (!endGame) {
+
+        cout << dataFromServer;
 
         userInput = getValidInput();
         sendData(sock, userInput);
 
         dataFromServer = receiveData(sock);
 
-        if(dataFromServer == "MOVE SUCCESS") {
+        if (dataFromServer == "MOVE SUCCESS") {
             cout << "Nice move. Wait for opponent" << endl;
             dataFromServer = receiveData(sock);
+
+            if (dataFromServer.find("LOSS") == 0) {
+                cout << "You lost" << endl;
+                dataFromServer = receiveData(sock);
+                cout << dataFromServer;
+                endGame = true;
+            } else {
+                cout << dataFromServer;
+            }
         } else if (dataFromServer == "MOVE FAILED") {
             cout << "Illegal move. Try again" << endl;
             continue;
 
         } else if (dataFromServer == "WIN") {
             cout << "You won!" << endl;
-            endGame = true;
-        } else if (dataFromServer == "LOSS") {
-            cout << "You lost" << endl;
             endGame = true;
         }
 
@@ -116,7 +115,7 @@ void enterGame(int sock) {
 string receiveData(int sock) {
 
     char inBuffer[BUFFERSIZE];
-    string dataReceived = "";
+    string dataReceived;
     int bytesRecv = 0;
     int totalLength = 0;
 
@@ -137,16 +136,16 @@ string receiveData(int sock) {
 //        dataReceived.pop_back();
 //        dataReceived.pop_back();
 
-        if (bytesRecv == BUFFERSIZE) {
-            dataReceived.pop_back();
-        }
+//        if (bytesRecv == BUFFERSIZE) {
+//            dataReceived.pop_back(); //to get rid of \003 that is attached by send()
+//            dataReceived.pop_back();
+//            dataReceived.pop_back();
+//            dataReceived.pop_back();
+//        }
 
         memset(&inBuffer, 0, BUFFERSIZE);
 
     } while (bytesRecv == BUFFERSIZE);
-
-    cout << "Server: \n" << dataReceived <<
-         endl;
 
     return
             dataReceived;
@@ -195,18 +194,14 @@ string getValidInput() {
 
     while (true) {
         char input[BUFFERSIZE];
-        // fgets(input, BUFFERSIZE, stdin);		//TODO Fix this for addition of logout feature
+        fgets(input, BUFFERSIZE, stdin);
 
-        // if (strncmp(input, "logout", 6) == 0) {
-        //     return "logout";
-        // } else {
+        if (strncmp(input, "logout", 6) == 0) {
+            return "logout";
+        } else {
             int row = -1, col = -1;
-            // sscanf(input, "%d %d", &row, &col);
-            string sInput;
-            getline(cin, sInput);
-            row = (int)sInput.c_str()[0] - '0';
-            col = (int)sInput.c_str()[2] - '0';
-            cout << "row: " << row << " col: " << col << endl;
+            sscanf(input, "%d %d", &row, &col);
+            //cout << "row: " << row << " col: " << col << endl;
             if ((row >= 0) && (row <= 2)) {
                 if ((col <= 2) && (col >= 0)) {
                     memset(&input, 0, BUFFERSIZE);
@@ -218,7 +213,7 @@ string getValidInput() {
                     return string(input);
                 }
             }
-        // }
+        }
         cout << "invalid input" << endl;
     }
 }

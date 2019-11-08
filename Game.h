@@ -11,12 +11,10 @@ class Player;
 
 class Game {
 private:
-    Player* xPlayer;
-    Player* oPlayer;
-    Board* board;
-    Turn currentTurn;
-
-    void switchTurn();
+    Player* xPlayer = NULL;
+    Player* oPlayer = NULL;
+    Board* board = NULL;
+    Turn currentTurn = xTurn;
 
 public:
     Game();
@@ -33,9 +31,11 @@ public:
 
     Player *getOPlayer() const;
 
-    bool xWins();
+    Player* getOpponent(Player* player);
 
-    bool oWins();
+    bool checkWin(Player* player);
+
+    void switchTurn();
 };
 
 
