@@ -42,6 +42,9 @@ vector<User> registeredUsers = {
         User("Greg"),
         User("Nathan"),
         User("Auguste"),
-        User("Grigory")
+        User("Grigory"),
+        User("Bob"),
+        User("Alex")
 };
+
 #endif //CPSC_441_TERM_PROJECT_TICTACTOE_SELECTSERVER_H

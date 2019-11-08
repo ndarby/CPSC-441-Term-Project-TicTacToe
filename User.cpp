@@ -10,9 +10,9 @@ const string &User::getUserName() const {
 }
 
 User::User(string userName) {
-    
+
     currentlyOnline = false;
-    
+
     this->userName = userName;
     wins = ((int64_t) &wins) % 11;      //dont do this at home
     loses = ((int64_t) &loses) % 11;

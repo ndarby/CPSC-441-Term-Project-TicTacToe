@@ -7,6 +7,10 @@ class Game;
 
 class Player {
 private:
+public:
+    void setGame(Game *game);
+
+private:
     string userName;
     Mark mark;
     Game* game;

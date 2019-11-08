@@ -18,9 +18,12 @@ fd_set recvSockSet;   // The set of descriptors for incoming connections
 int maxDesc = 0;      // The max descriptor
 bool terminated = false;
 
-vector<Game> activeGames;
+vector<Game> activeGames = {
+        Game(),
 
-std::map<int, User*> activeUsers;
+};
+
+std::map<int, User*> activeUsers = map<int, User*>();
 
 
 int main(int argc, char *argv[]) {
@@ -207,16 +210,18 @@ void processMove(int sock, string data) {
 void putUserInGame(int sock) {
     User* user = activeUsers[sock];
     cout << "found sockets user " << user->getUserName() << endl;
-    Player player(user->getUserName());
-    user->setPlayer(&player);
+    Player* player = new Player(user->getUserName());   //TODO this probably causes a memory leak
+    user->setPlayer(player);
 
-    Game& potentialGame = activeGames.back();
-    if (!potentialGame.isFull()) {
-        potentialGame.setPlayer(&player);
+    Game* potentialGame = &activeGames.back();
+    if (!potentialGame->isFull()) {
+        cout << "found game with a spot" << endl;
+        potentialGame->setPlayer(player);
     } else {
-        potentialGame = Game();
-        potentialGame.setPlayer(&player);
-        activeGames.push_back(potentialGame);
+        cout << "Made new game" << endl;
+        potentialGame = new Game();
+        potentialGame->setPlayer(player);
+        activeGames.push_back(*potentialGame);
     }
 }
 
@@ -224,21 +229,16 @@ void sendData(int sock, string data) {
 
     cout << "Sending to client: " << data << endl;
 
-    const char *toSend = data.c_str();
+
     int bytesSent = 0;
     int totalBytesToSend = data.length();
     int messageLength = 0;
 
     while (totalBytesToSend != 0) {
-        if (totalBytesToSend < BUFFERSIZE) {
-            messageLength = totalBytesToSend;
-        } else {
-            messageLength = BUFFERSIZE;
-        }
 
-        send(sock, &toSend[bytesSent], messageLength, 0);
-
-        totalBytesToSend -= messageLength;
+        bytesSent = send(sock, data.c_str(), data.length(), 0);
+        
+        totalBytesToSend -= bytesSent;
     }
 
 }
@@ -246,11 +246,11 @@ void sendData(int sock, string data) {
 
 void loginUser(int sock, string userName) {
     bool userLoggedIn = false;
-    for (User user: registeredUsers) {
-        if ((user.getUserName() == userName) && user.attemptLogin()) {
+    for (int i = 0; i <= activeUsers.size(); i++) {
+        if ((registeredUsers[i].getUserName() == userName) && registeredUsers[i].attemptLogin()) {
             sendData(sock, "LOGIN SUCCESS");
             userLoggedIn = true;
-            activeUsers[sock] = &user;
+            activeUsers[sock] = &registeredUsers[i];
             break;
         }
     }

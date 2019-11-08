@@ -100,19 +100,25 @@ string receiveData(int sock) {
         dataReceived.append(inBuffer);
 
         totalLength += bytesRecv;
+//
+//        dataReceived.pop_back(); //to get rid of \003 that is attached by send()
+//        dataReceived.pop_back();
+//        dataReceived.pop_back();
+//        dataReceived.pop_back();
 
-        dataReceived.pop_back(); //to get rid of \003 that is attached by send()
-        dataReceived.pop_back();
-        dataReceived.pop_back();
-        dataReceived.pop_back();
-
+        if (bytesRecv == BUFFERSIZE) {
+            dataReceived.pop_back();
+        }
 
         memset(&inBuffer, 0, BUFFERSIZE);
+    
     } while (bytesRecv == BUFFERSIZE);
 
-    cout << "Server: \n" << dataReceived << endl;
+    cout << "Server: \n" << dataReceived <<
+         endl;
 
-    return dataReceived;
+    return
+            dataReceived;
 }
 
 void sendData(int sock, string data) {

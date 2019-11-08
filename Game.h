@@ -8,9 +8,9 @@ class Board;
 
 class Game {
 private:
-    Player *xPlayer;
-    Player *oPlayer;
-    Board *board;
+    Player* xPlayer;
+    Player* oPlayer;
+    Board* board;
     Turn currentTurn;
 
     void switchTurn();
@@ -23,7 +23,6 @@ public:
     bool makeMove(int row, int col, Mark mark);
 
     void setPlayer(Player *player);
-
 };
 
 

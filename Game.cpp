@@ -6,7 +6,8 @@
 #include "Player.h"
 #include "Board.h"
 
-Game::Game() : board() {
+Game::Game() {
+    board = new Board();
     currentTurn = xTurn;
 }
 
@@ -53,5 +54,7 @@ void Game::setPlayer(Player* player) {
         oPlayer = player;
         oPlayer->setMark(oMark);
     }
+
+    player->setGame(this);
 }
 
