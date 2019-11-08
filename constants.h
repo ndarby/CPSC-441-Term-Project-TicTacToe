@@ -2,7 +2,7 @@
 #define CONSTANTS
 
 #define SPACE_CHAR ' '
-#define LETTER_O 'O'
-#define LETTER_X 'X'
+#define O_MARK 'O'
+#define X_MARK 'X'
 
 #endif // !CONSTANTS

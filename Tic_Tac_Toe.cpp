@@ -1,27 +1,21 @@
-// Tic_Tac_Toe.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
+#include <string>
 
 #include "constants.h"
 
-#include <stdio.h>
-#include <string>
-#include <stdlib.h>
 using namespace std;
 
 #include "Tic_Tac_Toe.h"
 
-
-
 int TicTacToe::setup(string x, string o, int xs, int os)
 {
 	theBoard = Board();
-	xPlayer = Player(x, 'X', &theBoard); 
-	oPlayer = Player(o, 'O', &theBoard);
+	xPlayer = Player(x, X_MARK, &theBoard);
+	oPlayer = Player(o, O_MARK, &theBoard);
+
 	xSock = xs;
 	oSock = os;
 	xPlayerTurn = true;
 
-	
 	return 0;
 	
 }
