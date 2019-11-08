@@ -10,5 +10,5 @@ add_executable(TCPClient
 add_executable(SelectServer
         SelectServer.cpp
         Tic_Tac_Toe.cpp Tic_Tac_Toe.h
-        Player.h
+        Player.cpp Player.h
         constants.h)

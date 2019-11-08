@@ -34,7 +34,7 @@ public:             // Access specifier
 	 * @return True if 'X' won the game, otherwise returns false
 	 */
 	bool xWins() {
-		if (checkWinner(LETTER_X) == 1)
+		if (checkWinner(X_MARK) == 1)
 			return true;
 		else
 			return false;
@@ -44,7 +44,7 @@ public:             // Access specifier
 	 * @return true if O won the game
 	 */
 	bool oWins() {
-		if (checkWinner(LETTER_O) == 1)
+		if (checkWinner(O_MARK) == 1)
 			return true;
 		else
 			return false;
