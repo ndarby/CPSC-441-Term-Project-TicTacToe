@@ -4,8 +4,10 @@
 #include <string>
 #include "constants.h"
 
+#include "Board.h"
+#include "Player.h"
+
 class Player;
-class Board;
 
 class Game {
 private:

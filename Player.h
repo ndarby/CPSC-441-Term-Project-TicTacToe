@@ -1,10 +1,14 @@
+#ifndef CPSC_441_TERM_PROJECT_TICTACTOE_PLAYER_H
+#define CPSC_441_TERM_PROJECT_TICTACTOE_PLAYER_H
+
 #include <string>
 #include "constants.h"
-
+#include "Game.h"
 
 using namespace std;
 
 class User;
+class Game;
 
 class Player {
 private:
@@ -33,3 +37,5 @@ public:
     void setUser(User *user);
 
 };
+
+#endif

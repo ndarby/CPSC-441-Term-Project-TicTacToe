@@ -1,6 +1,7 @@
 //
 // Created by Greg on 2019-11-07.
 //
+#include "Game.h"
 
 Game::Game() {
     board = new Board();

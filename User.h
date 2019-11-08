@@ -7,10 +7,11 @@
 
 #include <string>
 
-#include "Game.h"
 #include "constants.h"
+#include "Game.h"
 
 class Player;
+class Game;
 
 using namespace std;
 

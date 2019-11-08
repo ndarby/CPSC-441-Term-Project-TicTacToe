@@ -241,6 +241,7 @@ void sendData(int sock, string data) {
     int bytesSent = 0;
     int totalBytesToSend = data.length();
     int messageLength = 0;
+    int returnedFromSend = 0;
 
     while (totalBytesToSend != 0) {
         if (totalBytesToSend < BUFFERSIZE) {
@@ -249,9 +250,10 @@ void sendData(int sock, string data) {
             messageLength = BUFFERSIZE;
         }
 
-        bytesSent = send(sock, &toSend[bytesSent], messageLength, 0);
+        returnedFromSend = send(sock, &toSend[bytesSent], messageLength, 0);
+        bytesSent += returnedFromSend;
 
-        totalBytesToSend -= bytesSent;
+        totalBytesToSend -= returnedFromSend;
     }
 
 }

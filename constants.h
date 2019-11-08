@@ -25,10 +25,4 @@ enum Turn {
     xTurn, oTurn
 };
 
-#include "Board.h"
-#include "Game.h"
-#include "User.h"
-#include "Player.h"
-#include "SelectServer.h"
-
 #endif // !CONSTANTS
