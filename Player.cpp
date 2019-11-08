@@ -33,6 +33,14 @@ void Player::setUser(User *user) {
     Player::user = user;
 }
 
+bool checkWin(){
+	if(mark == xMark){
+		return game->xWins();
+	}else{
+		return game->oWins();
+	}
+}
+
 
 
 
