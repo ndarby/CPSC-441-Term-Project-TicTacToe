@@ -42,6 +42,15 @@ static bool xPlayerTurn = true;
 
 TicTacToe theGame = TicTacToe();
 
+//here I was thinking of using a bunch of vectors to represent games, the indices will be each game
+//ie. the first game is in allGames[0], the xPlayerSocket in the first game is in xPlayerSockets[0]
+//THIS HAS NOT BEEN IMPLEMENTED YET IN THE SERVER PAST LINE 68, FEEL FREE TO CHANGE IF THERE IS A BETTER WAY
+vector<TicTacToe> allGames;
+vector<bool> xPlayersSet;
+vector<bool> oPlayersSet;
+vector<int> xPlayerSockets;
+vector<int> oPlayerSockets;
+vector<bool> xPlayerTurns;
 
 
 int main(int argc, char *argv[]) {
@@ -53,6 +62,10 @@ int main(int argc, char *argv[]) {
     struct timeval timeout = {0, 10};  // The timeout value for select()
     struct timeval selectTime;
     fd_set tempRecvSockSet;            // Temp. receive socket set for select()
+
+    xPlayersSet.push_back(false);
+    oPlayersSet.push_back(false);
+    allGames.push_back(TicTacToe());  	//not sure if we want to use this array list to contain all the games? 
 
     // Check for input errors
     if (argc != 2) {
