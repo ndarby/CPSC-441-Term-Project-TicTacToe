@@ -207,13 +207,18 @@ void processMove(int sock, string data) {
     User* currentUser = activeUsers[sock];
 
     if (currentUser->getPlayer()->play(col, row)) { //valid move
-        sendData(sock, "MOVE SUCCESS");
+        if(currentUser->getPlayer()->checkWin()){
+    		sendData(sock, "WIN");
+    	}else{
+    		sendData(sock, "MOVE SUCCESS");
+    	}
         sendData(sock, currentUser->getPlayer()->getGame()->sendState());
-    }else if(currentUser->getPlayer()->checkWin()){
-    	sendData(sock, "WIN");
     }else {
         sendData(sock, "MOVE FAILED");
     }
+
+    
+
 
 }
 
@@ -233,6 +238,7 @@ void putUserInGame(int sock) {
         potentialGame->setPlayer(player);
         activeGames.push_back(*potentialGame);
     }
+    sendData(sock, user->getPlayer()->getGame()->sendState());
 }
 
 void sendData(int sock, string data) {

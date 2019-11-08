@@ -74,8 +74,21 @@ void enterGame(int sock) {
 
     cout << "Start of game" << endl;
     while (!endGame) {
-        //dataFromServer = receiveData(sock);
-        //cout << dataFromServer;
+        dataFromServer = receiveData(sock);
+      
+        if(dataFromServer == "WIN"){
+        	cout << "You Won!";
+        	dataFromServer = receiveData(sock);
+        	cout << dataFromServer;
+        	return;
+        }else if(dataFromServer == "LOSS"){
+        	cout << "You Lost.";
+        	dataFromServer = receiveData(sock);
+        	cout << dataFromServer;
+        	return;
+        }
+
+        cout<< dataFromServer;
 
         userInput = getValidInput();
         sendData(sock, userInput);

@@ -70,11 +70,11 @@ Player *Game::getOPlayer() const {
     return oPlayer;
 }
 
-bool xWins(){
+bool Game::xWins(){
     return board->xWins();
 }
 
-bool oWins(){
+bool Game::oWins(){
     return board->oWins();
 }
 
