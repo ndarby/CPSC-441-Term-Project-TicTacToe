@@ -136,12 +136,12 @@ string receiveData(int sock) {
 //        dataReceived.pop_back();
 //        dataReceived.pop_back();
 
-//        if (bytesRecv == BUFFERSIZE) {
-//            dataReceived.pop_back(); //to get rid of \003 that is attached by send()
-//            dataReceived.pop_back();
-//            dataReceived.pop_back();
-//            dataReceived.pop_back();
-//        }
+       if (bytesRecv == BUFFERSIZE) {
+           dataReceived.pop_back(); //to get rid of \003 that is attached by send()
+           dataReceived.pop_back();
+           dataReceived.pop_back();
+           dataReceived.pop_back();
+       }
 
         memset(&inBuffer, 0, BUFFERSIZE);
 
