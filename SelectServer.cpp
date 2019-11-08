@@ -212,11 +212,12 @@ void processMove(int sock, string data) {
         Game* game = currentUser->getPlayer()->getGame();
         if (game->checkWin(currentUser->getPlayer())) {
             sendData(sock, "WIN");
-
+            currentUser->changeRecord(win);
             Player *opponent = game->getOpponent(currentUser->getPlayer());
             sendData(opponent->getUser()->getSock(), "LOSS");
             sendData(opponent->getUser()->getSock(), game->sendState());
-
+            opponent->getUser()->changeRecord(loss);
+            //TODO check for ties
         }
         sendData(sock, "MOVE SUCCESS");
         Player *opponent = currentUser->getPlayer()->getGame()->getOpponent(currentUser->getPlayer());
@@ -235,17 +236,6 @@ void putUserInGame(int sock) {
     Player* player = new Player(user->getUserName());   //TODO this probably causes a memory leak
     user->setPlayer(player);
 
-//    if (!potentialGame->isFull()) {
-//        cout << "Found game with a spot" << endl;
-//        potentialGame->setPlayer(player);
-//    } else {
-//        cout << "Made new game" << endl;
-//        Game newGame = Game();
-//        newGame.setPlayer(player);
-//        activeGames.push_back(newGame);
-//
-//        potentialGame = &newGame;
-//    }
     Game& potentialGame = activeGames[0];
     int i = 1;
     while (potentialGame.isFull()) {

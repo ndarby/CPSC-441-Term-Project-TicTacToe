@@ -15,15 +15,7 @@ bool Game::isFull() {
 }
 
 bool Game::makeMove(int row, int col, Mark mark) {
-    char charMark;
-
-    if (mark == xPlayer->getMark()) {
-        charMark = X_MARK;
-    } else {
-        charMark = O_MARK;
-    }
-
-    if (mark == xMark) {
+        if (mark == xMark) {
         if (currentTurn != xTurn) {
             return false;
         }
@@ -31,8 +23,8 @@ bool Game::makeMove(int row, int col, Mark mark) {
         return false;
     }
 
-    if (board->getMark(row, col) == SPACE_CHAR) {
-        board->addMark(row, col, charMark);
+    if (board->getMark(row, col) == emptyMark) {
+        board->addMark(row, col, mark);
         switchTurn();
         return true;
     }
@@ -81,17 +73,7 @@ Player *Game::getOpponent(Player *player) {
 }
 
 bool Game::checkWin(Player *player) {
-
-    char charMark;
-
-    if (player->getMark() == xPlayer->getMark()) {
-        charMark = X_MARK;
-    } else {
-        charMark = O_MARK;
-    }
-
-
-    return board->checkWinner(charMark);
+    return board->checkWinner(player->getMark());
 }
 
 
