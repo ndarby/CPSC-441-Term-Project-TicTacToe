@@ -11,6 +11,7 @@
 #include <string.h>     // for memset()
 #include <unistd.h>     // for close()
 #include <string>
+#include <vector>
 
 #include "Tic_Tac_Toe.h"
 
@@ -41,8 +42,7 @@ static bool xPlayerTurn = true;
 
 TicTacToe theGame = TicTacToe();
 
-// string list();
-// string get(string filename);
+
 
 int main(int argc, char *argv[]) {
 
