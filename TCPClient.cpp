@@ -1,8 +1,7 @@
 /*
  * A simple TCP client that sends messages to a server and display the message
-   from the server. 
- * For use in CPSC 441 lectures
- * Instructor: Prof. Mea Wang
+   from the server.
+ * Modified for use in CPSC 441 Term Project
  */
 
 #include <iostream>

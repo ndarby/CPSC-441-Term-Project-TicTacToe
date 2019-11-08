@@ -108,12 +108,6 @@ int main(int argc, char *argv[]) {
                 cout << "Player is not able to be added to the game." << endl;
             }
 
-
-
-// PLAYERS ASSIGNED HERE
-
-
-
             // Add the new connection to the receive socket set
             FD_SET(clientSock, &recvSockSet);
             maxDesc = max(maxDesc, clientSock);
@@ -174,7 +168,6 @@ void initServer(int &TCPSock, int port) {
         cout << "listen() failed" << endl;
         exit(1);
     }
-
 }
 
 void processSockets(fd_set readySocks) {
