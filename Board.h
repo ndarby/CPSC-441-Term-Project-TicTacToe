@@ -12,54 +12,22 @@ using namespace std;
 class Board {
 
 private:
-    char theBoard[3][3] = {{' ', ' ', ' '},
-                           {' ', ' ', ' '},
-                           {' ', ' ', ' '}};
+    Mark theBoard[3][3] = {{emptyMark, emptyMark, emptyMark},
+                           {emptyMark, emptyMark, emptyMark},
+                           {emptyMark, emptyMark, emptyMark}};
     int markCount;
 
-public:             // Access specifier
-    Board() {
-        markCount = 0;
-    }
-
+public:
+    Board();
 
     char getMark(int row, int col) {
         return theBoard[row][col];
     }
 
-    /**
-     * Checks if the board is full
-     * @return true if the board is full
-     */
     bool isFull() {
         return markCount == 9;
     }
 
-    /**
-     * Calls checkWinner(char) to see if this specific player won the game
-     * @return True if 'X' won the game, otherwise returns false
-     */
-    bool xWins() {
-        if (checkWinner(X_MARK) == 1)
-            return true;
-        else
-            return false;
-    }
-
-    /**
-     * Calls checkWinner(char) to see if this specific player won the game
-     * @return true if O won the game
-     */
-    bool oWins() {
-        if (checkWinner(O_MARK) == 1)
-            return true;
-        else
-            return false;
-    }
-
-    /**
-     * Displays the boards rows & columns with the appropriate characters
-     */
     void display() {
         displayColumnHeaders();
         addHyphens();
@@ -74,41 +42,19 @@ public:             // Access specifier
         }
     }
 
-    /**
-     * Places a players character on the board.
-     * Additionally updates the total amount of characters
-     * @param row
-     * @param col
-     * @param mark
-     */
-    void addMark(int row, int col, char mark) {
+    void addMark(int row, int col, Mark mark) {
 
         theBoard[row][col] = mark;
         markCount++;
     }
 
-    void removeMark(int row, int col, char mark) {
-        theBoard[row][col] = ' ';
-        markCount--;
-    }
-
-    /**
-     * Clears the board of characters.
-     * Additionally resets the tally of characters present
-     */
     void clear() {
         for (int i = 0; i < 3; i++)
             for (int j = 0; j < 3; j++)
-                theBoard[i][j] = SPACE_CHAR;
+                theBoard[i][j] = emptyMark;
         markCount = 0;
     }
 
-    /**
-     * Checks for a win condition present on the board for a character.
-     * Will check for 3 horizontal, 3 vertical, and 2 diagonal wins.
-     * @param mark
-     * @return 1 if the character checked won the game
-     */
     int checkWinner(char mark) {
         int row, col;
         int result = 0;
@@ -151,9 +97,6 @@ public:             // Access specifier
         return result;
     }
 
-    /**
-     * Displays the column headers with appropriate indexes
-     */
     void displayColumnHeaders() {
         printf("          ");
         for (int j = 0; j < 3; j++)

@@ -18,7 +18,7 @@ enum GameResult {
 };
 
 enum Mark {
-    xMark, oMark
+    xMark, oMark, emptyMark
 };
 
 enum Turn {

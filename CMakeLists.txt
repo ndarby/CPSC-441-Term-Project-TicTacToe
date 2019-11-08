@@ -11,6 +11,6 @@ add_executable(SelectServer
         SelectServer.cpp
         User.cpp User.h
         Game.cpp Game.h
-        Board.h
+        Board.cpp Board.h
         Player.cpp Player.h
         constants.h)
