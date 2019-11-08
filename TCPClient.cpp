@@ -72,7 +72,11 @@ string receiveData(int sock) {
         totalLength += bytesRecv;
         
         dataReceived.pop_back(); //to get rid of \003 that is attached by send()
-        
+        dataReceived.pop_back();
+        dataReceived.pop_back();
+        dataReceived.pop_back();
+
+		        
         
 
 

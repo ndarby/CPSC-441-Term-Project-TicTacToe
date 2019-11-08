@@ -16,11 +16,14 @@ public:
 	Player xPlayer;
 	Player oPlayer;
 	Board theBoard;
+	int xSock;
+	int oSock;
+	bool xPlayerTurn;
 
 	TicTacToe(){
 	}
 
-	int setup(string x, string o);
+	int setup(string x, string o, int xs, int os);
 
 	string makeMove(bool xTurn, int col, int row);
 

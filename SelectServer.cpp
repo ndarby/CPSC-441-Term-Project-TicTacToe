@@ -1,7 +1,7 @@
 /*
  * A simple TCP select server that accepts multiple connections and echo message back to the clients
  * For use in CPSC 441 lectures
- * Instructor: Prof. Mea Wang
+ * Modified for use in CPSC 441 Term Project
  */
 
 #include <iostream>
@@ -105,7 +105,7 @@ int main(int argc, char *argv[]) {
             } else if (xPlayerSet && !oPlayerSet) {
                 oPlayerSock = clientSock;
                 oPlayerSet = true;
-                theGame.setup("xPlayer", "oPlayer"); //FIX THIS add usernames later
+                theGame.setup("xPlayer", "oPlayer", xPlayerSock, oPlayerSock); //FIX THIS add usernames later
             } else {
                 cout << "Player is not able to be added to the game." << endl;
             }
@@ -295,106 +295,6 @@ void sendData(int sock, char *buffer, int size) {
 
     return;
 }
-
-// void sendData (int sock, char* buffer, int size)
-// {
-//     int bytesSent = 0;                   // Number of bytes sent
-
-// Sent the data
-// bytesSent += send(sock, (char *) buffer + bytesSent, size - bytesSent, 0);
-
-// if(strncmp(buffer, (char*)"list", 4) == 0){
-//     string listFiles = list();
-//     size = listFiles.length();
-//     bytesSent += send(sock, listFiles.c_str() + bytesSent, size - bytesSent, 0);
-// }else if(strncmp(buffer, (char*)"get", 3) == 0){
-//     string filename;
-//     int bufferLength = sizeof(buffer)/sizeof(char);
-//     for(int i = 4; i < bufferLength; i++){
-//         filename += buffer[i];
-//     }
-//     get(filename);
-// }else if (strncmp(buffer, "logout", 6) == 0){
-//     bytesSent = 1;
-//     size = 1;
-//     return;
-// }else if (strncmp(buffer, "terminate", 9) == 0){
-//     terminated = true;
-//     return;
-// }else{
-//     string cmd = string(buffer);
-//     string returnMsg = "Unknown Command: " + cmd + '\n';
-//     delete[] buffer;
-//     buffer = new char[returnMsg.length() + 1];
-//     // buffer = new char[BUFFERSIZE];
-//     strcpy(buffer, returnMsg.c_str());
-//     size = returnMsg.length();
-//     // int n = size/BUFFERSIZE;
-//     // for(int i = 0; i <= n; i++){
-//     //     bytesSent += send(sock, (char *) buffer + bytesSent, size - bytesSent, 0);
-//     // }
-//     bytesSent += send(sock, (char *) buffer + bytesSent, size - bytesSent, 0);
-// }
-
-// if (bytesSent < 0 || bytesSent != size)
-// {
-//     cout << "error in sending" << endl;
-//     return;
-// }
-
-// if (strncmp(buffer, "terminate", 9) == 0)
-//     terminated = true;
-// }
-
-// string list(){
-//     // Execute the "ls" command and save the output to /tmp/temp.txt.
-//     // /tmp is a special directory storing temporate files in Linux.
-//     system("ls > /tmp/temp.txt");
-
-//     // Open the file
-//     ifstream infile;
-//     infile.open("/tmp/temp.txt");
-
-//     // Store the file content into a string
-//     string line;
-//     string data = "";
-//     while (getline(infile, line))
-//     {
-//         data += line + "\n";
-//     }
-
-//     // Close the file
-//     infile.close();
-
-//     return data;
-// }
-
-// string get(string filename){
-//     // Open the file for input
-//     // cout << "Open file: " << filename << endl;
-//     ifstream infile;
-//     infile.open(filename.c_str());
-
-//     // check for errors in opening the file
-//     if (!infile.is_open())
-//     {
-//         cout << "open() failed " << endl;
-//         string msg = "Error in openning file " + filename + "\n";
-//         cout << msg;
-//         return msg;
-//     }
-
-//     // Read the file line by line
-//     string data;
-//     string line;
-//     while (getline(infile, line))
-//     {
-//         line += "\n";
-//         data += line;
-//     }
-
-//     return data;
-// }
 
 
     

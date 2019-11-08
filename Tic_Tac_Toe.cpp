@@ -12,11 +12,14 @@ using namespace std;
 
 
 
-int TicTacToe::setup(string x, string o)
+int TicTacToe::setup(string x, string o, int xs, int os)
 {
 	theBoard = Board();
 	xPlayer = Player(x, 'X', &theBoard); 
 	oPlayer = Player(o, 'O', &theBoard);
+	xSock = xs;
+	oSock = os;
+	xPlayerTurn = true;
 
 	
 	return 0;
