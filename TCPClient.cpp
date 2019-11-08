@@ -14,23 +14,116 @@
 
 using namespace std;
 
-const int BUFFERSIZE = 32;   // Size the message buffers
+const int BUFFERSIZE = 100;   // Size the message buffers
+
+int initConnection(const char *, int);
+
+string receiveData(int);
+
+void sendData(int, string);
+
+string getValidInput();
 
 int main(int argc, char *argv[]) {
     int sock;                        // A socket descriptor
-    struct sockaddr_in serverAddr;   // Address of the server
-    char inBuffer[BUFFERSIZE];       // Buffer for the message from the server
-    int bytesRecv;                   // Number of bytes received
-
-    char outBuffer[BUFFERSIZE];      // Buffer for message to the server
-    int msgLength;                   // Length of the outgoing message
-    int bytesSent;                   // Number of bytes sent
 
     // Check for input errors
     if (argc != 3) {
         cout << "Usage: " << argv[0] << " <Server IP> <Server Port>" << endl;
         exit(1);
     }
+
+    sock = initConnection(argv[1], atoi(argv[2]));
+
+    string userInput = " ";
+    string dataFromServer;
+    while (userInput != "logout") {
+
+        userInput = getValidInput();
+        cout << "userInput: " << userInput << endl;
+        sendData(sock, userInput);
+
+        dataFromServer = receiveData(sock);
+        
+    }
+
+    // Close the socket
+    close(sock);
+    exit(0);
+}
+
+string receiveData(int sock) {
+
+    char inBuffer[BUFFERSIZE];
+    string dataReceived;
+    int bytesRecv = 0;
+    
+    do {
+        bytesRecv = recv(sock, (char *) &inBuffer, sizeof(inBuffer), 0);
+
+        if (bytesRecv <= 0) {
+            cerr << "recv() failed, or the connection is closed. " << endl;
+            exit(1);
+        }
+        
+        dataReceived.append(inBuffer);
+        
+    } while (bytesRecv == BUFFERSIZE);
+    
+    cout << "Server: \n" << dataReceived << endl;
+
+    return dataReceived;
+}
+
+void sendData(int sock, string data) {
+    char outBuffer[BUFFERSIZE];
+
+    strncpy(outBuffer, data.c_str(), BUFFERSIZE);
+    outBuffer[data.length()] = '\0';
+
+    cout << "sending: " << outBuffer << endl;
+
+    int bytesSent = send(sock, (char *) &outBuffer, strlen(outBuffer), 0);
+
+    if (bytesSent < 0 || bytesSent != strlen(outBuffer)) {
+        cerr << "error in sending" << endl;
+        exit(1);
+    }
+}
+
+string getValidInput() {
+    string returnValue = "   ";
+
+    while (true) {
+        char input[BUFFERSIZE];
+        fgets(input, BUFFERSIZE, stdin);
+
+        if (strncmp(input, "logout", 6) == 0) {
+            return "logout";
+        } else {
+            int row = -1, col = -1;
+            sscanf(input, "%d %d", &row, &col);
+            cout << "row: " << row << " col: " << col << endl;
+            if ((row >= 1) && (row <= 3)) {
+                if ((col <= 3) && (col >= 1)) {
+                    memset(&input, 0, BUFFERSIZE);
+
+                    input[0] = (row - 1) + '0';
+                    input[1] = ' ';
+                    input[2] = (col - 1) + '0';
+                    input[3] = '\0';
+                    return string(input);
+                }
+            }
+        }
+        cout << "invalid input" << endl;
+    }
+}
+
+int initConnection(const char *ipAddress, int portNum) {
+
+    struct sockaddr_in serverAddr;
+    int sock;
 
     // Create a TCP socket
     // * AF_INET: using address family "Internet Protocol address"
@@ -57,8 +150,8 @@ int main(int argc, char *argv[]) {
     // Note that we can't choose a port less than 1023 if we are not privileged users (root)
     memset(&serverAddr, 0, sizeof(serverAddr));         // Zero out the structure
     serverAddr.sin_family = AF_INET;                    // Use Internet address family
-    serverAddr.sin_port = htons(atoi(argv[2]));         // Server port number
-    serverAddr.sin_addr.s_addr = inet_addr(argv[1]);    // Server IP address
+    serverAddr.sin_port = htons(portNum);         // Server port number
+    serverAddr.sin_addr.s_addr = inet_addr(ipAddress);    // Server IP address
 
     // Connect to the server
     // * sock: the socket for this connection
@@ -69,51 +162,5 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-
-    cout << "Please make a move ('logout' to terminate): ";
-    fgets(outBuffer, BUFFERSIZE, stdin);
-    while (strncmp(outBuffer, "logout", 6) != 0) {
-        msgLength = strlen(outBuffer);
-        // Send the message to the server
-        bytesSent = send(sock, (char *) &outBuffer, msgLength, 0);
-        if (bytesSent < 0 || bytesSent != msgLength) {
-            cout << "error in sending" << endl;
-            exit(1);
-        }
-        // Receive the response from the server
-        string receivedData;
-        bytesRecv = recv(sock, (char *) &inBuffer, sizeof(inBuffer), 0);
-        receivedData = receivedData + inBuffer;
-        // string receivedData;
-        // bytesRecv = 0;
-        // int total = 0;
-        // do {
-        //     bytesRecv = recv(sock, (char *) &inBuffer, BUFFERSIZE, 0);
-        //     total += bytesRecv;
-        //     receivedData = receivedData + inBuffer;
-        // } while (bytesRecv == 32);
-
-        // Check for connection close (0) or errors (< 0)
-        if (bytesRecv <= 0)
-        {
-            cout << "recv() failed, or the connection is closed. " << endl;
-            exit(1); 
-        }
-        cout << "Server: \n" << receivedData << endl;
-
-
-        // Clear the buffers
-        memset(&outBuffer, 0, BUFFERSIZE);
-        memset(&inBuffer, 0, BUFFERSIZE);
-        recv(sock, (char *) &inBuffer, BUFFERSIZE, 0);
-        receivedData = receivedData + inBuffer;
-        cout << receivedData << endl;
-        cout << "Please make a move ('logout' to terminate): ";
-        fgets(outBuffer, BUFFERSIZE, stdin);
-    }
-
-    // Close the socket
-    close(sock);
-    exit(0);
+    return sock;
 }
-
