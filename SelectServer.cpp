@@ -264,7 +264,7 @@ void receiveData(int sock, char *inBuffer, int &size) {
     }
 
     string msg = string(inBuffer);
-    cout << "Client: " << msg;
+    cout << "Client: " << msg << endl;
 }
 
 
@@ -287,7 +287,8 @@ void sendData(int sock, char *buffer, int size) {
         sendToPlayer = "Error: Waiting for opponent to make a move...";
     }
 
-    send(sock, sendToPlayer.c_str(), sendToPlayer.length(), 0);
+    cout << sendToPlayer.c_str();
+    send(sock, sendToPlayer.c_str(), strlen(sendToPlayer.c_str()), 0);
     // send(xPlayerSock, sendToPlayer.c_str(), sendToPlayer.length(), 0);
     // send(oPlayerSock, sendToPlayer.c_str(), sendToPlayer.length(), 0);
 

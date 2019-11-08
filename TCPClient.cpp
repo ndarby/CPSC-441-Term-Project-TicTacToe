@@ -57,6 +57,7 @@ string receiveData(int sock) {
     char inBuffer[BUFFERSIZE];
     string dataReceived = "";
     int bytesRecv = 0;
+    int totalLength = 0;
     
     do {
         bytesRecv = recv(sock, (char *) &inBuffer, BUFFERSIZE, 0);
@@ -65,8 +66,16 @@ string receiveData(int sock) {
             cerr << "recv() failed, or the connection is closed. " << endl;
             exit(1);
         }
-        
+
         dataReceived.append(inBuffer);
+        
+        totalLength += bytesRecv;
+        
+        dataReceived.pop_back(); //to get rid of \003 that is attached by send()
+        
+        
+
+
         memset(&inBuffer, 0, BUFFERSIZE);
     } while (bytesRecv == BUFFERSIZE);
     
@@ -104,13 +113,13 @@ string getValidInput() {
             int row = -1, col = -1;
             sscanf(input, "%d %d", &row, &col);
             cout << "row: " << row << " col: " << col << endl;
-            if ((row >= 1) && (row <= 3)) {
-                if ((col <= 3) && (col >= 1)) {
+            if ((row >= 0) && (row <= 2)) {
+                if ((col <= 2) && (col >= 0)) {
                     memset(&input, 0, BUFFERSIZE);
 
-                    input[0] = (row - 1) + '0';
+                    input[0] = row  + '0';
                     input[1] = ' ';
-                    input[2] = (col - 1) + '0';
+                    input[2] = col + '0';
                     input[3] = '\0';
                     return string(input);
                 }
