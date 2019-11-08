@@ -43,6 +43,7 @@ static bool xPlayerTurn = true;
 TicTacToe theGame = TicTacToe();
 
 
+
 int main(int argc, char *argv[]) {
 
     int TCPSock;                  // server socket descriptor
@@ -120,13 +121,13 @@ int main(int argc, char *argv[]) {
             processSockets(tempRecvSockSet);
         }
     }
-    // Close the connections with the client
+
     for (int sock = 0; sock <= maxDesc; sock++) {
-        if (FD_ISSET(sock, &recvSockSet))
+        if (FD_ISSET(sock, &recvSockSet)) {
             close(sock);
+        }
     }
 
-    // Close the server sockets
     close(TCPSock);
 
 }
@@ -217,7 +218,6 @@ void receiveData(int sock, char *inBuffer, int &size) {
     cout << "Client: " << msg << endl;
 }
 
-
 void sendData(int sock, char *buffer, int size) {
 
     string sendToPlayer;
@@ -245,6 +245,3 @@ void sendData(int sock, char *buffer, int size) {
 
     return;
 }
-
-
-    
