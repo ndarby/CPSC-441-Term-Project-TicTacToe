@@ -14,7 +14,7 @@
 
 using namespace std;
 
-const int BUFFERSIZE = 100;   // Size the message buffers
+const int BUFFERSIZE = 32;   // Size the message buffers
 
 int initConnection(const char *, int);
 
@@ -55,11 +55,11 @@ int main(int argc, char *argv[]) {
 string receiveData(int sock) {
 
     char inBuffer[BUFFERSIZE];
-    string dataReceived;
+    string dataReceived = "";
     int bytesRecv = 0;
     
     do {
-        bytesRecv = recv(sock, (char *) &inBuffer, sizeof(inBuffer), 0);
+        bytesRecv = recv(sock, (char *) &inBuffer, BUFFERSIZE, 0);
 
         if (bytesRecv <= 0) {
             cerr << "recv() failed, or the connection is closed. " << endl;
@@ -67,7 +67,7 @@ string receiveData(int sock) {
         }
         
         dataReceived.append(inBuffer);
-        
+        memset(&inBuffer, 0, BUFFERSIZE);
     } while (bytesRecv == BUFFERSIZE);
     
     cout << "Server: \n" << dataReceived << endl;

@@ -1,4 +1,3 @@
-#pragma once
 #ifndef CONSTANTS
 #define CONSTANTS
 #include <stdio.h>

@@ -1,5 +1,3 @@
-#pragma once
-
 #include "constants.h"
 #include "Board.h"
 
