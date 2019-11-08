@@ -23,6 +23,12 @@ void sendData(int, string);
 
 string getValidInput();
 
+void attemptLogin(int sock);
+
+void menuOptions(int sock);
+
+void enterGame(int sock);
+
 int main(int argc, char *argv[]) {
     int sock;                        // A socket descriptor
 
@@ -34,6 +40,34 @@ int main(int argc, char *argv[]) {
 
     sock = initConnection(argv[1], atoi(argv[2]));
 
+    attemptLogin(sock);
+
+    menuOptions(sock);
+
+    // Close the socket
+    close(sock);
+    exit(0);
+}
+
+void menuOptions(int sock) {
+    cout << "The menu options are: 'logout', 'leaderboard', 'play'" << endl;
+    string userInput;
+    while (true) {
+        cin >> userInput;
+        if (userInput == "logout") {
+            //TODO nicely logout
+            break;
+        } else if (userInput == "leaderboard") {
+            sendData(sock, "LEADERBOARD");
+            receiveData(sock);
+        } else if (userInput == "play") {
+            sendData(sock, "PLAY");
+            enterGame(sock);
+        }
+    }
+}
+
+void enterGame(int sock) {
     string userInput = " ";
     string dataFromServer;
     while (userInput != "logout") {
@@ -44,12 +78,8 @@ int main(int argc, char *argv[]) {
         sendData(sock, userInput);
 
         dataFromServer = receiveData(sock);
-        
-    }
 
-    // Close the socket
-    close(sock);
-    exit(0);
+    }
 }
 
 string receiveData(int sock) {
@@ -58,7 +88,7 @@ string receiveData(int sock) {
     string dataReceived = "";
     int bytesRecv = 0;
     int totalLength = 0;
-    
+
     do {
         bytesRecv = recv(sock, (char *) &inBuffer, BUFFERSIZE, 0);
 
@@ -68,21 +98,18 @@ string receiveData(int sock) {
         }
 
         dataReceived.append(inBuffer);
-        
+
         totalLength += bytesRecv;
-        
+
         dataReceived.pop_back(); //to get rid of \003 that is attached by send()
         dataReceived.pop_back();
         dataReceived.pop_back();
         dataReceived.pop_back();
 
-		        
-        
-
 
         memset(&inBuffer, 0, BUFFERSIZE);
     } while (bytesRecv == BUFFERSIZE);
-    
+
     cout << "Server: \n" << dataReceived << endl;
 
     return dataReceived;
@@ -104,6 +131,28 @@ void sendData(int sock, string data) {
     }
 }
 
+void attemptLogin(int sock) {
+    cout << "Enter username: " << endl;
+
+    string userName;
+    string serverString;
+    string serverResponse;
+
+    while (true) {
+        cin >> userName;
+
+        serverString = "LOGIN " + userName;
+        sendData(sock, serverString);
+        serverResponse = receiveData(sock);
+
+        if (serverResponse == "LOGIN SUC") {
+            break;
+        }
+        cout << "Invalid user name. Try again" << endl;
+
+    }
+}
+
 string getValidInput() {
     string returnValue = "   ";
 
@@ -113,8 +162,6 @@ string getValidInput() {
 
         if (strncmp(input, "logout", 6) == 0) {
             return "logout";
-        } else if (strncmp(input, "leaderboard", strlen("leaderboard")) == 0) {
-            return "leaderboard";
         } else {
             int row = -1, col = -1;
             sscanf(input, "%d %d", &row, &col);
@@ -123,7 +170,7 @@ string getValidInput() {
                 if ((col <= 2) && (col >= 0)) {
                     memset(&input, 0, BUFFERSIZE);
 
-                    input[0] = row  + '0';
+                    input[0] = row + '0';
                     input[1] = ' ';
                     input[2] = col + '0';
                     input[3] = '\0';

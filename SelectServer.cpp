@@ -4,16 +4,10 @@
  * Modified for use in CPSC 441 Term Project
  */
 
-#include <iostream>
-#include <sys/socket.h> // for socket(), connect(), send(), and recv()
-#include <arpa/inet.h>  // for sockaddr_in and inet_addr()
-#include <stdlib.h>     // for atoi() and exit()
-#include <string.h>     // for memset()
-#include <unistd.h>     // for close()
-#include <string>
-#include <vector>
-
-#include "Tic_Tac_Toe.h"
+#include "SelectServer.h"
+#include "Game.h"
+#include "User.h"
+#include "Player.h"
 
 using namespace std;
 
@@ -24,35 +18,9 @@ fd_set recvSockSet;   // The set of descriptors for incoming connections
 int maxDesc = 0;      // The max descriptor
 bool terminated = false;
 
-void initServer(int &, int port);
+vector<Game> activeGames;
 
-void processSockets(fd_set);
-
-void sendData(int, char[], int);
-
-string receiveData(int, char[], int &);
-
-ServerCommand processData(string);
-
-int xPlayerSock;
-int oPlayerSock;
-
-static bool xPlayerSet = false;
-static bool oPlayerSet = false;
-
-static bool xPlayerTurn = true;
-
-TicTacToe theGame = TicTacToe();
-
-//here I was thinking of using a bunch of vectors to represent games, the indices will be each game
-//ie. the first game is in allGames[0], the xPlayerSocket in the first game is in xPlayerSockets[0]
-//THIS HAS NOT BEEN IMPLEMENTED YET IN THE SERVER PAST LINE 68, FEEL FREE TO CHANGE IF THERE IS A BETTER WAY
-vector<TicTacToe> allGames;
-vector<bool> xPlayersSet;
-vector<bool> oPlayersSet;
-vector<int> xPlayerSockets;
-vector<int> oPlayerSockets;
-vector<bool> xPlayerTurns;
+std::map<int, User*> activeUsers;
 
 
 int main(int argc, char *argv[]) {
@@ -64,12 +32,12 @@ int main(int argc, char *argv[]) {
     struct timeval timeout = {0, 10};  // The timeout value for select()
     struct timeval selectTime;
     fd_set tempRecvSockSet;            // Temp. receive socket set for select()
-
-    xPlayersSet.push_back(false);
-    oPlayersSet.push_back(false);
-    allGames.push_back(TicTacToe());  	//not sure if we want to use this array list to contain all the games? 
-
-    // Check for input errors
+//
+//    xPlayersSet.push_back(false);
+//    oPlayersSet.push_back(false);
+//    allGames.push_back(TicTacToe());    //not sure if we want to use this array list to contain all the games?
+//
+//    // Check for input errors
     if (argc != 2) {
         cout << "Usage: " << argv[1] << " <Listening Port>" << endl;
         exit(1);
@@ -84,7 +52,7 @@ int main(int argc, char *argv[]) {
 
     // Add the listening socket to the set
     FD_SET(TCPSock, &recvSockSet);
-    maxDesc = max(TCPSock, 0);
+    maxDesc = max(TCPSock, maxDesc);
 
     // Run the server until a "terminate" command is received)
     while (!terminated) {
@@ -111,17 +79,17 @@ int main(int argc, char *argv[]) {
             cout << "Accepted a TCP connection from " << inet_ntoa(clientAddr.sin_addr) << ":" << clientAddr.sin_port
                  << endl;
 
-            //sets the IP address to either the xPlayer or the oPlayer
-            if (!xPlayerSet) {
-                xPlayerSock = clientSock;
-                xPlayerSet = true;
-            } else if (xPlayerSet && !oPlayerSet) {
-                oPlayerSock = clientSock;
-                oPlayerSet = true;
-                theGame.setup("xPlayer", "oPlayer", xPlayerSock, oPlayerSock); //FIX THIS add usernames later
-            } else {
-                cout << "Player is not able to be added to the game." << endl;
-            }
+//            //sets the IP address to either the xPlayer or the oPlayer
+//            if (!xPlayerSet) {
+//                xPlayerSock = clientSock;
+//                xPlayerSet = true;
+//            } else if (xPlayerSet && !oPlayerSet) {
+//                oPlayerSock = clientSock;
+//                oPlayerSet = true;
+//                theGame.setup("xPlayer", "oPlayer", xPlayerSock, oPlayerSock); //FIX THIS add usernames later
+//            } else {
+//                cout << "Player is not able to be added to the game." << endl;
+//            }
 
             // Add the new connection to the receive socket set
             FD_SET(clientSock, &recvSockSet);
@@ -140,6 +108,162 @@ int main(int argc, char *argv[]) {
     close(TCPSock);
 
 }
+
+void processSockets(fd_set readySocks) {
+    char *buffer = new char[BUFFERSIZE];       // Buffer for the message from the server
+    int size;                                    // Actual size of the message 
+
+    // Loop through the descriptors and process
+    string fromClient;
+    for (int sock = 0; sock <= maxDesc; sock++) {
+        if (!FD_ISSET(sock, &readySocks))
+            continue;
+
+        // Clear the buffers
+        memset(buffer, 0, BUFFERSIZE);
+
+
+        fromClient = receiveData(sock, buffer, size);
+
+        ServerCommand command = processData(fromClient);
+        string userName;
+
+        switch (command) {
+            case login:
+                cout << "login command received" << endl;
+                userName = fromClient.substr(6, string::npos);
+                loginUser(sock, userName);
+                break;
+            case leaderboard:
+                cout << "leaderboard command received" << endl;
+                displayLeaderboard(sock);
+                break;
+            case startgame:
+                cout << "startgame command received" << endl;
+                putUserInGame(sock);
+                break;
+            case makeMove:
+                cout << "makeMove command received" << endl;
+                processMove(sock, fromClient);
+                break;
+        }
+
+        //sendData(sock, buffer, size);
+    }
+
+    delete[] buffer;
+}
+
+string receiveData(int sock, char *inBuffer, int &size) {
+    // Receive the message from client
+    size = recv(sock, (char *) inBuffer, BUFFERSIZE, 0);
+
+    // Check for connection close (0) or errors (< 0)
+    if (size <= 0) {
+        cout << "recv() failed, or the connection is closed. " << endl;
+        FD_CLR(sock, &recvSockSet);
+
+        // Update the max descriptor
+        while (FD_ISSET(maxDesc, &recvSockSet) == false)
+            maxDesc -= 1;
+        return NULL;
+    }
+
+    string msg = string(inBuffer);
+    cout << "Client: " << msg << endl;
+
+    return msg;
+}
+
+ServerCommand processData(string data) {
+
+    cout << "in processData: " << data << endl;
+    if (data.find("LEADERBOARD") == 0) {
+        return leaderboard;
+    } else if (data.find("LOGIN") == 0) {
+        return login;
+    } else if (data.find("PLAY") == 0) {
+        return startgame;
+    } else {
+        return makeMove;
+    }
+
+}
+
+void processMove(int sock, string data) {
+    int col = data[0] - '0';
+    int row = data[2] - '0';
+
+    User* currentUser = activeUsers[sock];
+
+    if (currentUser->getPlayer()->play(col, row)) { //valid move
+        sendData(sock, "MOVE SUCCESS");
+    } else {
+        sendData(sock, "MOVE FAILED");
+    }
+
+}
+
+void putUserInGame(int sock) {
+    User* user = activeUsers[sock];
+    cout << "found sockets user " << user->getUserName() << endl;
+    Player player(user->getUserName());
+    user->setPlayer(&player);
+
+    Game& potentialGame = activeGames.back();
+    if (!potentialGame.isFull()) {
+        potentialGame.setPlayer(&player);
+    } else {
+        potentialGame = Game();
+        potentialGame.setPlayer(&player);
+        activeGames.push_back(potentialGame);
+    }
+}
+
+void sendData(int sock, string data) {
+
+    cout << "Sending to client: " << data << endl;
+
+    const char *toSend = data.c_str();
+    int bytesSent = 0;
+    int totalBytesToSend = data.length();
+    int messageLength = 0;
+
+    while (totalBytesToSend != 0) {
+        if (totalBytesToSend < BUFFERSIZE) {
+            messageLength = totalBytesToSend;
+        } else {
+            messageLength = BUFFERSIZE;
+        }
+
+        send(sock, &toSend[bytesSent], messageLength, 0);
+
+        totalBytesToSend -= messageLength;
+    }
+
+}
+
+
+void loginUser(int sock, string userName) {
+    bool userLoggedIn = false;
+    for (User user: registeredUsers) {
+        if ((user.getUserName() == userName) && user.attemptLogin()) {
+            sendData(sock, "LOGIN SUCCESS");
+            userLoggedIn = true;
+            activeUsers[sock] = &user;
+            break;
+        }
+    }
+    if (!userLoggedIn) {
+        sendData(sock, "LOGIN FAILED");
+    }
+}
+
+void displayLeaderboard(int sock) {
+    //TODO retrieve leaderboard
+    sendData(sock, "SOME SORT OF LEADERBOARD");
+}
+
 
 void initServer(int &TCPSock, int port) {
     struct sockaddr_in serverAddr;   // address of the server
@@ -183,85 +307,4 @@ void initServer(int &TCPSock, int port) {
         cout << "listen() failed" << endl;
         exit(1);
     }
-}
-
-void processSockets(fd_set readySocks) {
-    char *buffer = new char[BUFFERSIZE];       // Buffer for the message from the server
-    int size;                                    // Actual size of the message 
-
-    // Loop through the descriptors and process
-    for (int sock = 0; sock <= maxDesc; sock++) {
-        if (!FD_ISSET(sock, &readySocks))
-            continue;
-
-        // Clear the buffers
-        memset(buffer, 0, BUFFERSIZE);
-
-        string fromClient;
-
-        fromClient = receiveData(sock, buffer, size);
-
-
-        ServerCommand command = processData(data);
-
-        sendData(sock, buffer, size);
-    }
-
-    delete[] buffer;
-}
-
-string receiveData(int sock, char *inBuffer, int &size) {
-    // Receive the message from client
-    size = recv(sock, (char *) inBuffer, BUFFERSIZE, 0);
-
-    // Check for connection close (0) or errors (< 0)
-    if (size <= 0) {
-        cout << "recv() failed, or the connection is closed. " << endl;
-        FD_CLR(sock, &recvSockSet);
-
-        // Update the max descriptor
-        while (FD_ISSET(maxDesc, &recvSockSet) == false)
-            maxDesc -= 1;
-        return NULL;
-    }
-
-    string msg = string(inBuffer);
-    cout << "Client: " << msg << endl;
-
-    return msg;
-}
-
-ServerCommand processData(string data) {
-
-    if (data.compare("MOVE") == 0) {
-
-    }
-}
-
-void sendData(int sock, char *buffer, int size) {
-
-    string sendToPlayer;
-    int col = buffer[0] - '0';
-    int row = buffer[2] - '0';
-    if ((sock == xPlayerSock) && xPlayerTurn) {
-        //make a move with xplayer
-        sendToPlayer = theGame.makeMove(xPlayerTurn, col, row);
-        xPlayerTurn = false;
-    } else if ((sock == oPlayerSock) && (!xPlayerTurn)) {
-        //make a move with the oPlayer
-        sendToPlayer = theGame.makeMove(xPlayerTurn, col, row);
-        xPlayerTurn = true;
-    } else if ((sock == xPlayerSock) && !xPlayerTurn) {
-        sendToPlayer = "Error: Waiting for opponent to make a move...";
-    } else if ((sock == oPlayerSock) && xPlayerTurn) {
-        sendToPlayer = "Error: Waiting for opponent to make a move...";
-    }
-
-    cout << sendToPlayer.c_str();
-    send(sock, sendToPlayer.c_str(), strlen(sendToPlayer.c_str()), 0);
-    // send(xPlayerSock, sendToPlayer.c_str(), sendToPlayer.length(), 0);
-    // send(oPlayerSock, sendToPlayer.c_str(), sendToPlayer.length(), 0);
-
-
-    return;
 }

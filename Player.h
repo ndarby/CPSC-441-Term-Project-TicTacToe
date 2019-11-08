@@ -1,22 +1,23 @@
-#include "constants.h"
-#include "Board.h"
+#include <string>
+#include "Game.h"
+
+using namespace std;
+
+class Game;
 
 class Player {
-protected:
-    string name;
-
-    char mark;
-
-    Board *myBoard;
+private:
+    string userName;
+    Mark mark;
+    Game* game;
 
 public:
+    Player(string userName);
 
-    Player() {}
+    void setMark(Mark mark);
 
-    Player(string n, char m, Board *b);
+    Mark getMark() const;
 
-    void play(int col, int row);
-
-    void makeMove(int col, int row);
+    bool play(int col, int row);
 
 };
