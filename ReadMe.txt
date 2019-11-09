@@ -14,14 +14,10 @@ Afterwards, the console will provide information on how to run and control the g
 
 
 Students:
-Name : Gregory Ord
-UCID:  30020595                    
+Name : Gregory Ord                   
  
 Name: August Sosick
-UCID:  30050299
 
 Name: Nathan Darby
-UCID: 30033588
 
 Name: Grigory Devyatov
-UCID: 30028553
