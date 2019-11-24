@@ -6,6 +6,13 @@
 Game::Game() {
     board = new Board();
     currentTurn = xTurn;
+    gameNum = rand() %100; //random number between 0-100
+}
+
+Game::Game(int n) {
+    board = new Board();
+    currentTurn = xTurn;
+    gameNum = n; //random number between 0-100
 }
 
 
@@ -94,6 +101,22 @@ bool Game::checkWin(Player *player) {
     return board->checkWinner(charMark);
 }
 
+int Game::getgameNum(void){
+    return gameNum;
+}
+void Game::setgameNum(int num){
+    gameNum = num;
+}
 
+int Game::howManyPlayers(){
+    if((xPlayer != NULL) && (oPlayer != NULL))
+        return 2;
+    if((xPlayer == NULL) && (oPlayer != NULL))
+        return 1;
+    if((xPlayer != NULL) && (oPlayer == NULL))
+        return 1;
+    if((xPlayer == NULL) && (oPlayer == NULL))
+        return 0;
+}
 
 

@@ -10,6 +10,7 @@
 #include <stdlib.h>     // for atoi() and exit()
 #include <string.h>     // for memset()
 #include <unistd.h>     // for close()
+#include <string>
 
 using namespace std;
 
@@ -28,6 +29,8 @@ void attemptLogin(int sock);
 void menuOptions(int sock);
 
 void enterGame(int sock);
+
+void createNewRoom(int sock);
 
 int main(int argc, char *argv[]) {
     int sock;                        // A socket descriptor
@@ -50,7 +53,7 @@ int main(int argc, char *argv[]) {
 }
 
 void menuOptions(int sock) {
-    cout << "The menu options are: 'logout', 'leaderboard', 'play', 'KILLSERVER'" << endl;
+    cout << "The menu options are: 'logout', 'leaderboard', 'play', 'KILLSERVER', 'listusers',\n'createroom', 'joinroom', 'deleteroom'" << endl;
     string userInput;
     while (true) {
         cin >> userInput;
@@ -65,8 +68,34 @@ void menuOptions(int sock) {
             enterGame(sock);
         } else if (userInput == "KILLSERVER"){
             sendData(sock,"KILLSERVER");
+        }else if (userInput == "listusers"){
+            sendData(sock,"LISTUSERS");
+            cout<< receiveData(sock);
+        }else if (userInput == "createroom"){
+            createNewRoom(sock);
+        }else if (userInput == "joinroom"){
+            sendData(sock,"JOINROOM");
+            //cout<< receiveData(sock);
+
+        }else if (userInput == "deleteroom"){
+            string removeNum;
+            sendData(sock,"DELETEROOM");
+            cout<< "Please give the room number";
+            cin >> removeNum;
+            sendData(sock,removeNum);
+            cout<< removeNum;
+            cout<<receiveData(sock);
         }
     }
+}
+
+void createNewRoom(int sock){
+    string gameroomNumber;
+    sendData(sock, "CREATEROOM");
+    cout<< receiveData(sock);
+    //getline(cin, gameroomNumber);
+    //sendData(sock, gameroomNumber);
+    //cout << "Updated list\n" << receiveData(sock);
 }
 
 void enterGame(int sock) {
@@ -184,6 +213,7 @@ void attemptLogin(int sock) {
         serverResponse = receiveData(sock);
 
         if (serverResponse == "LOGIN SUCCESS") {
+            cout << receiveData(sock);                      //Where initial room listing is displayed
             break;
         }
         cout << "Invalid user name. Try again" << endl;

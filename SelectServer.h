@@ -20,6 +20,14 @@
 
 #include "constants.h"
 
+string removeAPlayableRoom(int roomNum);
+
+void createNewGameRoom(int sock);
+
+string listOfRunningGames(void);
+
+string listUsers(void);
+
 void updateLeaderBoard();
 
 void loadUserDetails(void);

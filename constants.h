@@ -10,7 +10,7 @@ using namespace std;
 #define X_MARK 'X'
 
 enum ServerCommand {
-    login, leaderboard, makeMove, startgame, killserver
+    login, leaderboard, makeMove, startgame, killserver, listusers, createroom, joinroom, deleteroom
 };
 
 enum GameResult {

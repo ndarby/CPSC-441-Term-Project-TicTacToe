@@ -3,7 +3,7 @@
 
 #include <string>
 #include "constants.h"
-
+#include <cstdlib>
 #include "Board.h"
 #include "Player.h"
 
@@ -11,6 +11,7 @@ class Player;
 
 class Game {
 private:
+    int gameNum;
     Player* xPlayer = NULL;
     Player* oPlayer = NULL;
     Board* board = NULL;
@@ -18,6 +19,8 @@ private:
 
 public:
     Game();
+
+    Game(int num);
 
     bool isFull();
 
@@ -36,6 +39,11 @@ public:
     bool checkWin(Player* player);
 
     void switchTurn();
+
+    int howManyPlayers();
+
+    int getgameNum(void);
+    void setgameNum(int num);
 };
 
 

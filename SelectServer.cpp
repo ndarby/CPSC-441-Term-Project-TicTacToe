@@ -126,6 +126,51 @@ int main(int argc, char *argv[]) {
 
 }
 
+// void createNewGameRoom(int sock){
+//     // char *buffer = new char[BUFFERSIZE];       // Buffer for the message from the server
+//     // int size;   
+
+//     // sendData(sock,"Please enter a room number that is not currently in use\n");
+//     // int gameNum = stoi(receiveData(sock, buffer, size));
+//     // activeGames.push_back(Game(gameNum));
+//     // sendData(sock,listOfRunningGames());
+//     activeGames.push_back(Game());
+//     sendData(sock,listOfRunningGames());
+// }
+
+string removeAPlayableRoom(int roomNum){
+    for(int i = 0; i<activeGames.size(); i++){
+        if(activeGames.at(i).getgameNum() == roomNum)
+            if(activeGames.at(i).howManyPlayers() != 0){    //someone is in the game room
+                return "That game room has a player in it. Can not delete\n";
+            }
+            else{
+            activeGames.erase(activeGames.begin()+i);
+            return listOfRunningGames();
+        }
+    }
+}
+
+string listOfRunningGames(){
+    string runningGames;
+    runningGames.append("Currently running games:\n");
+    for(int i = 0; i<activeGames.size();i++){
+        runningGames.append("Game room " + to_string(activeGames.at(i).getgameNum()) + " has " + to_string(activeGames.at(i).howManyPlayers()) + "/2 active players\n");
+    }
+    return runningGames;
+}
+
+string listUsers(){
+    string usersOnline;
+    usersOnline.append("Users currently online: ");
+     for(int j = 0; j <registeredUsers.size(); j++){
+        if(registeredUsers.at(j).isCurrentlyOnline())
+            usersOnline.append(registeredUsers.at(j).getUserName() + " ");
+     }   
+     usersOnline.append("\n");  
+     return usersOnline;
+}
+
 void loadUserDetails(){                             //Loads all the user data stored in a text file 
     ifstream myfile("UserInformation.txt");
     string userInfo;
@@ -177,7 +222,7 @@ void beginTerminate(){
     }
     myfile << userInfo;
     myfile.close();
-    cout <<"User data has been saved in text file UserInformation.txt in your running directory";
+    cout <<"\nUser data has been saved in text file UserInformation.txt in your running directory\n";
     terminated = true;
 }
 
@@ -196,22 +241,19 @@ void updateLeaderBoard(){           //Does not account for tied winners! Will ra
     }
 
 
-    int i, key, j, keyp;  
-    for (i = 1; i < sizeof(temp)/sizeof(int); i++) 
-    {  
-        key = temp[i];
+    int i, hold, j;  
+    for (i = 1; i < sizeof(temp)/sizeof(int); i++) {  //sorting array of scores
+        hold = temp[i];
         j = i - 1;  
-
-        while (j >= 0 && temp[j] > key) 
-        {  
+        while (temp[j] > hold && j >= 0) {  
             temp[j + 1] = temp[j]; 
             j = j - 1;  
         }  
-        temp[j + 1] = key;  
+        temp[j + 1] = hold;  
     }
     
     int values [registeredUsers.size()];
-    for (int i = 0, j = registeredUsers.size(); i < registeredUsers.size(); i++, j--){
+    for (int i = 0, j = registeredUsers.size(); i < registeredUsers.size(); i++, j--){  //matching sorted array score with players
         values[j] = temp[i];
     } 
     
@@ -283,9 +325,27 @@ void processSockets(fd_set readySocks) {
                 processMove(sock, fromClient);
                 break;
             case killserver:
-                cout << "server seppeku started" << endl;
+                cout << "server shutting down" << endl;
                 beginTerminate();
                 break;    
+            case listusers:
+                cout<< "Listing all users\n";
+                sendData(sock,listUsers());    
+                break;
+            case createroom:
+                cout<< "creating game room\n";
+                activeGames.push_back(Game());
+                sendData(sock,listOfRunningGames());
+                break;
+            case joinroom:
+                cout<< "Listing all users\n";
+                sendData(sock,listUsers());    
+                break;
+            case deleteroom:
+                cout<< "Listing all users\n";
+                memset(buffer, 0, BUFFERSIZE);
+                sendData(sock, removeAPlayableRoom(stoi(receiveData(sock, buffer, size))));  //recieves the user's room number, stoi makes it int, removeAPl.. deletes a room   
+                break;                                                                      //and returns an updated list or tells the user the room has someone in it
         }
 
         //sendData(sock, buffer, size);
@@ -293,6 +353,7 @@ void processSockets(fd_set readySocks) {
 
     delete[] buffer;
 }
+
 
 string receiveData(int sock, char *inBuffer, int &size) {
     // Receive the message from client
@@ -327,6 +388,18 @@ ServerCommand processData(string data) {
     } 
     else if (data.find("KILLSERVER") == 0) {
         return killserver;
+    }
+    else if (data.find("LISTUSERS") == 0) {
+        return listusers;
+    }
+    else if (data.find("CREATEROOM") == 0) {
+        return createroom;
+    }
+    else if (data.find("JOINROOM") == 0) {
+        return joinroom;
+    }
+    else if (data.find("DELETEROOM") == 0) {
+        return deleteroom;
     }
     else {
         return makeMove;
@@ -428,6 +501,7 @@ void loginUser(int sock, string userName) {
     for (int i = 0; i <= registeredUsers.size(); i++) {
         if ((registeredUsers[i].getUserName() == userName) && registeredUsers[i].attemptLogin()) {
             sendData(sock, "LOGIN SUCCESS");
+            sendData(sock, listOfRunningGames());                    //Where initial room data is stored.
             userLoggedIn = true;
             registeredUsers[i].setOnlineStatus(true);
             registeredUsers[i].setSock(sock);
