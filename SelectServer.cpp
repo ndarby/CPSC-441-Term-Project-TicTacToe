@@ -302,7 +302,7 @@ void updateLeaderBoard(){           //Does not account for tied winners! Will ra
                         temp_string.append(" of " + to_string(registeredUsers.at(i).getUserScore()) + "! Horrible job!\n" );    
                     }
                 else{
-                    temp_string.append("Next is " + registeredUsers.at(i).getUserName() + " who is ranked " + to_string(i+1) + " with " + to_string(registeredUsers.at(i).getWins()));
+                    temp_string.append("Next is " + registeredUsers.at(i).getUserName() + " who is ranked " + to_string(i+2) + " with " + to_string(registeredUsers.at(i).getWins()));
                     temp_string.append(" wins, " + to_string(registeredUsers.at(i).getLoses()) + " loses, and " + to_string(registeredUsers.at(i).getDraws()) + " draws for a total score");
                     temp_string.append(" of " + to_string(registeredUsers.at(i).getUserScore()) + "! Congrats!\n" );
                 }
