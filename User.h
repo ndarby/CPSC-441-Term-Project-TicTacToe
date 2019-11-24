@@ -23,6 +23,7 @@ private:
     int draws;
     int totalGames;
     int sock;
+    int score;
 public:
     int getSock() const;
 
@@ -49,6 +50,22 @@ public:
     const string &getUserName() const;
 
     bool isCurrentlyOnline() const;
+
+    void setWins(int w);
+    void setLoses(int l);
+    void setDraws(int d);
+    void setOnlineStatus(bool online);
+
+    int getWins(void);
+    int getLoses(void);
+    int getDraws(void);
+
+    string returnUsername(void);
+    void setUsername(string u);
+
+
+    void updateUserScore(void);
+    int getUserScore(void);
 };
 
 

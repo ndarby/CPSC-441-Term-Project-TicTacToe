@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
 }
 
 void menuOptions(int sock) {
-    cout << "The menu options are: 'logout', 'leaderboard', 'play'" << endl;
+    cout << "The menu options are: 'logout', 'leaderboard', 'play', 'KILLSERVER'" << endl;
     string userInput;
     while (true) {
         cin >> userInput;
@@ -59,10 +59,12 @@ void menuOptions(int sock) {
             break;
         } else if (userInput == "leaderboard") {
             sendData(sock, "LEADERBOARD");
-            receiveData(sock);
+            cout<< receiveData(sock);
         } else if (userInput == "play") {
             sendData(sock, "PLAY");
             enterGame(sock);
+        } else if (userInput == "KILLSERVER"){
+            sendData(sock,"KILLSERVER");
         }
     }
 }

@@ -13,8 +13,18 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <thread>
+#include <iostream>
+#include <fstream>
+#include <string.h>
 
 #include "constants.h"
+
+void updateLeaderBoard();
+
+void loadUserDetails(void);
+
+void beginTerminate(void);
 
 void initServer(int &, int port);
 

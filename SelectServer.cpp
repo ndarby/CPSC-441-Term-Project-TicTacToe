@@ -15,7 +15,9 @@ const int MAXPENDING = 10;    // Maximum pending connections
 
 fd_set recvSockSet;   // The set of descriptors for incoming connections
 int maxDesc = 0;      // The max descriptor
-bool terminated = false;
+volatile bool terminated = false;
+
+string leaderBoard;
 
 vector<Game> activeGames = {
         Game(),
@@ -29,14 +31,13 @@ std::map<int, User*> activeUsers = map<int, User*>();
 vector<User> registeredUsers = {
         User("Greg"),
         User("Nathan"),
-        User("Auguste"),
+        User("August"),
         User("Grigory"),
         User("Bob"),
         User("Alex")
 };
 
 int main(int argc, char *argv[]) {
-
     int TCPSock;                  // server socket descriptor
     int clientSock;                  // client socket descriptor
     struct sockaddr_in clientAddr;   // address of the client
@@ -44,6 +45,9 @@ int main(int argc, char *argv[]) {
     struct timeval timeout = {0, 10};  // The timeout value for select()
     struct timeval selectTime;
     fd_set tempRecvSockSet;            // Temp. receive socket set for select()
+
+
+    loadUserDetails();
 //
 //    xPlayersSet.push_back(false);
 //    oPlayersSet.push_back(false);
@@ -107,6 +111,7 @@ int main(int argc, char *argv[]) {
             FD_SET(clientSock, &recvSockSet);
             maxDesc = max(maxDesc, clientSock);
         } else {
+            //checkTerminate();                               //Will check to see if the server admin wants to termiante 
             processSockets(tempRecvSockSet);
         }
     }
@@ -121,6 +126,124 @@ int main(int argc, char *argv[]) {
 
 }
 
+void loadUserDetails(){                             //Loads all the user data stored in a text file 
+    ifstream myfile("UserInformation.txt");
+    string userInfo;
+    //myfile.open("UserInformation.txt");
+    int pos = 0;
+
+    while(!myfile.eof()){
+        getline(myfile, userInfo);
+        
+        for(int i = 0; i <registeredUsers.size(); i++){
+            
+            if(userInfo.substr(0,userInfo.find(" ")) == registeredUsers.at(i).getUserName()){
+                pos = userInfo.find(" ");
+                registeredUsers.at(i).setUsername(userInfo.substr(0, pos));
+                //cout << registeredUsers.at(i).getUserName();
+                userInfo.erase(0, pos + 1);
+
+                pos = userInfo.find(" ");
+                registeredUsers.at(i).setWins(stoi(userInfo.substr(0, pos)));
+                //cout << registeredUsers.at(i).getWins();
+                userInfo.erase(0, pos + 1);
+
+                pos = userInfo.find(" ");
+                registeredUsers.at(i).setLoses(stoi(userInfo.substr(0, pos)));
+                //cout << stoi(userInfo.substr(0, pos));
+                userInfo.erase(0, pos + 1);
+
+                pos = userInfo.find(" ");
+                registeredUsers.at(i).setDraws(stoi(userInfo.substr(0, pos)));
+                //cout << stoi(userInfo.substr(0, pos));
+                userInfo.erase(0, pos + 1);
+               
+            }
+        }  
+    }
+}
+
+void beginTerminate(){
+    ofstream myfile;
+    string userInfo;
+    myfile.open("UserInformation.txt");
+    cout << sizeof(registeredUsers);
+    for(int i = 0; i <registeredUsers.size(); i++){
+        userInfo.append(registeredUsers[i].returnUsername() + " ");
+        userInfo.append(to_string((int)registeredUsers[i].getWins())+ " ");
+        userInfo.append(to_string((int)registeredUsers[i].getLoses())+ " ");
+        userInfo.append(to_string((int)registeredUsers[i].getDraws())+ " ");
+        userInfo.append("\n");
+    }
+    myfile << userInfo;
+    myfile.close();
+    cout <<"User data has been saved in text file UserInformation.txt in your running directory";
+    terminated = true;
+}
+
+void updateLeaderBoard(){           //Does not account for tied winners! Will randomly pick one and wont mention that fact
+    string temp_string;
+    for(int i = 0; i <registeredUsers.size(); i++){
+        registeredUsers.at(i).updateUserScore();
+    }
+ 
+    int ranking [registeredUsers.size()];
+    int temp[registeredUsers.size()];
+
+    for(int i = 0; i<registeredUsers.size(); i++){
+        temp[i] = registeredUsers.at(i).getUserScore();
+        ranking[i] = 0;
+    }
+
+
+    int i, key, j, keyp;  
+    for (i = 1; i < sizeof(temp)/sizeof(int); i++) 
+    {  
+        key = temp[i];
+        j = i - 1;  
+
+        while (j >= 0 && temp[j] > key) 
+        {  
+            temp[j + 1] = temp[j]; 
+            j = j - 1;  
+        }  
+        temp[j + 1] = key;  
+    }
+    
+    int values [registeredUsers.size()];
+    for (int i = 0, j = registeredUsers.size(); i < registeredUsers.size(); i++, j--){
+        values[j] = temp[i];
+    } 
+    
+
+
+    temp_string.append("CPSC_441 LEADERBOARD!\n");
+    for(int j = 0; j <=registeredUsers.size(); j++){
+        for(int i = 0; i <registeredUsers.size(); i++){
+            if(values[j] == registeredUsers.at(i).getUserScore()){
+                if(j == 1){
+                        temp_string.append("The current leader on the leaderboard is " + registeredUsers.at(i).getUserName() + " with " + to_string(registeredUsers.at(i).getWins()));
+                        temp_string.append(" wins, " + to_string(registeredUsers.at(i).getLoses()) + " loses, and " + to_string(registeredUsers.at(i).getDraws()) + " draws for a total score ");
+                        temp_string.append("of " + to_string(registeredUsers.at(i).getUserScore()) + "! Congrats!\n" );
+                }else if(j == registeredUsers.size()){
+                        temp_string.append("And the big loser is " + registeredUsers.at(i).getUserName() + " who is ranked " + to_string(i+1) + " with " + to_string(registeredUsers.at(i).getWins()));
+                        temp_string.append(" wins, " + to_string(registeredUsers.at(i).getLoses()) + " loses, and " + to_string(registeredUsers.at(i).getDraws()) + " draws for a total score");
+                        temp_string.append(" of " + to_string(registeredUsers.at(i).getUserScore()) + "! Horrible job!\n" );    
+                    }
+                else{
+                    temp_string.append("Next is " + registeredUsers.at(i).getUserName() + " who is ranked " + to_string(i+1) + " with " + to_string(registeredUsers.at(i).getWins()));
+                    temp_string.append(" wins, " + to_string(registeredUsers.at(i).getLoses()) + " loses, and " + to_string(registeredUsers.at(i).getDraws()) + " draws for a total score");
+                    temp_string.append(" of " + to_string(registeredUsers.at(i).getUserScore()) + "! Congrats!\n" );
+                }
+            }
+        }
+    }
+    cout << temp_string << endl;
+    leaderBoard.clear(); 
+    leaderBoard.append(temp_string); //deep copy
+    
+}
+  
 void processSockets(fd_set readySocks) {
     char *buffer = new char[BUFFERSIZE];       // Buffer for the message from the server
     int size;                                    // Actual size of the message 
@@ -148,7 +271,8 @@ void processSockets(fd_set readySocks) {
                 break;
             case leaderboard:
                 cout << "leaderboard command received" << endl;
-                displayLeaderboard(sock);
+                updateLeaderBoard();
+                sendData(sock, leaderBoard);
                 break;
             case startgame:
                 cout << "startgame command received" << endl;
@@ -158,6 +282,10 @@ void processSockets(fd_set readySocks) {
                 cout << "makeMove command received" << endl;
                 processMove(sock, fromClient);
                 break;
+            case killserver:
+                cout << "server seppeku started" << endl;
+                beginTerminate();
+                break;    
         }
 
         //sendData(sock, buffer, size);
@@ -196,7 +324,11 @@ ServerCommand processData(string data) {
         return login;
     } else if (data.find("PLAY") == 0) {
         return startgame;
-    } else {
+    } 
+    else if (data.find("KILLSERVER") == 0) {
+        return killserver;
+    }
+    else {
         return makeMove;
     }
 
@@ -211,13 +343,15 @@ void processMove(int sock, string data) {
     if (currentUser->getPlayer()->play(col, row)) { //valid move
         Game* game = currentUser->getPlayer()->getGame();
         if (game->checkWin(currentUser->getPlayer())) {
-            sendData(sock, "WIN");
-            currentUser->changeRecord(win);
+            sendData(sock, "WIN");                                          //Sending the winner a "WIN" Statement
+            //currentUser->getPlayer()->setWins();                                          //Will increment the Wins of the current User in the server
             Player *opponent = game->getOpponent(currentUser->getPlayer());
+            
+
             sendData(opponent->getUser()->getSock(), "LOSS");
+            //opponent->getPlayer()->setLoses();                              //Will increment the losers overall loses by one
             sendData(opponent->getUser()->getSock(), game->sendState());
-            opponent->getUser()->changeRecord(loss);
-            //TODO check for ties
+
         }
         sendData(sock, "MOVE SUCCESS");
         Player *opponent = currentUser->getPlayer()->getGame()->getOpponent(currentUser->getPlayer());
@@ -236,6 +370,17 @@ void putUserInGame(int sock) {
     Player* player = new Player(user->getUserName());   //TODO this probably causes a memory leak
     user->setPlayer(player);
 
+//    if (!potentialGame->isFull()) {
+//        cout << "Found game with a spot" << endl;
+//        potentialGame->setPlayer(player);
+//    } else {
+//        cout << "Made new game" << endl;
+//        Game newGame = Game();
+//        newGame.setPlayer(player);
+//        activeGames.push_back(newGame);
+//
+//        potentialGame = &newGame;
+//    }
     Game& potentialGame = activeGames[0];
     int i = 1;
     while (potentialGame.isFull()) {
@@ -284,6 +429,7 @@ void loginUser(int sock, string userName) {
         if ((registeredUsers[i].getUserName() == userName) && registeredUsers[i].attemptLogin()) {
             sendData(sock, "LOGIN SUCCESS");
             userLoggedIn = true;
+            registeredUsers[i].setOnlineStatus(true);
             registeredUsers[i].setSock(sock);
             activeUsers[sock] = &registeredUsers[i];
             break;
@@ -295,8 +441,7 @@ void loginUser(int sock, string userName) {
 }
 
 void displayLeaderboard(int sock) {
-    //TODO retrieve leaderboard
-    sendData(sock, "SOME SORT OF LEADERBOARD");
+    
 }
 
 
