@@ -16,7 +16,11 @@ using namespace std;
 
 const int BUFFERSIZE = 32;   // Size the message buffers
 
+void joinALiveRoom(int sock);
+
 int initConnection(const char *, int);
+
+void deleteRoom(int sock);
 
 string receiveData(int);
 
@@ -53,7 +57,7 @@ int main(int argc, char *argv[]) {
 }
 
 void menuOptions(int sock) {
-    cout << "The menu options are: 'logout', 'leaderboard', 'play', 'KILLSERVER', 'listusers',\n'createroom', 'joinroom', 'deleteroom'" << endl;
+    cout << "The menu options are: 'logout', 'leaderboard', 'KILLSERVER', 'listusers',\n'createroom', 'joinroom', 'deleteroom'" << endl;
     string userInput;
     while (true) {
         cin >> userInput;
@@ -74,28 +78,83 @@ void menuOptions(int sock) {
         }else if (userInput == "createroom"){
             createNewRoom(sock);
         }else if (userInput == "joinroom"){
-            sendData(sock,"JOINROOM");
+            //sendData(sock,"JOINROOM");
             //cout<< receiveData(sock);
+            joinALiveRoom(sock);
 
         }else if (userInput == "deleteroom"){
-            string removeNum;
-            sendData(sock,"DELETEROOM");
-            cout<< "Please give the room number";
-            cin >> removeNum;
-            sendData(sock,removeNum);
-            cout<< removeNum;
-            cout<<receiveData(sock);
+            deleteRoom(sock);
         }
     }
+}
+void joinALiveRoom(int sock){
+    string joinNum;
+    sendData(sock,"JOINROOM");
+    cout<< "Please give the number of the room you'd like to join";
+    cin >> joinNum;
+    sendData(sock,joinNum);
+
+    string userInput = " ";
+    string dataFromServer;
+    bool endGame = false;
+
+    cout << "Start of game" << endl;
+
+    dataFromServer = receiveData(sock);
+    if (dataFromServer.find("WAIT") == 0) {
+        cout << "Opponent goes first" << endl;
+        dataFromServer = receiveData(sock);
+    }
+    while (!endGame) {
+
+        cout << dataFromServer;
+
+        userInput = getValidInput();
+        sendData(sock, userInput);
+
+        dataFromServer = receiveData(sock);
+
+        if (dataFromServer == "MOVE SUCCESS") {
+            cout << "Nice move. Wait for opponent" << endl;
+            dataFromServer = receiveData(sock);
+
+            if (dataFromServer.find("LOSS") == 0) {
+                cout << "You lost" << endl;
+                dataFromServer = receiveData(sock);
+                cout << dataFromServer;
+                endGame = true;
+            } else {
+                cout << dataFromServer;
+            }
+        } else if (dataFromServer == "MOVE FAILED") {
+            cout << "Illegal move. Try again" << endl;
+            continue;
+
+        } else if (dataFromServer == "WIN") {
+            cout << "You won!" << endl;
+            endGame = true;
+        }
+
+    }
+}
+
+void deleteRoom(int sock){
+    string removeNum;
+    sendData(sock,"DELETEROOM");
+    cout<< "Please give the room number";
+    cin >> removeNum;
+    sendData(sock,removeNum);
+    cout<< removeNum;
+    cout<<receiveData(sock);
 }
 
 void createNewRoom(int sock){
     string gameroomNumber;
     sendData(sock, "CREATEROOM");
-    cout<< receiveData(sock);
-    //getline(cin, gameroomNumber);
-    //sendData(sock, gameroomNumber);
-    //cout << "Updated list\n" << receiveData(sock);
+    cout<< "Please give the room number";
+    cin >> gameroomNumber;
+    sendData(sock,gameroomNumber);
+    cout<<receiveData(sock);
 }
 
 void enterGame(int sock) {

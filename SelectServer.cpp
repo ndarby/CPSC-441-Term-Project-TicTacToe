@@ -126,17 +126,46 @@ int main(int argc, char *argv[]) {
 
 }
 
-// void createNewGameRoom(int sock){
-//     // char *buffer = new char[BUFFERSIZE];       // Buffer for the message from the server
-//     // int size;   
+void joinALiveRoom(int roomNum, int sock, string username){
+    User* user = activeUsers[sock];         //curent user
+    int positionInActiveGames = 0;
+    //cout << "found sockets user " << user->getUserName() << endl;
+    Player* player = new Player(username);   //TODO this probably causes a memory leak
+    user->setPlayer(player);
 
-//     // sendData(sock,"Please enter a room number that is not currently in use\n");
-//     // int gameNum = stoi(receiveData(sock, buffer, size));
-//     // activeGames.push_back(Game(gameNum));
-//     // sendData(sock,listOfRunningGames());
-//     activeGames.push_back(Game());
-//     sendData(sock,listOfRunningGames());
-// }
+    for(int i =0; i<activeGames.size(); i++){           //Has to find the position in active games array that match the roomnumber provided
+        if(activeGames.at(i).getgameNum() == roomNum){
+            positionInActiveGames = i;
+        }
+    }
+
+    Game& potentialGame = activeGames[positionInActiveGames];                 //potential game points to the room the user want to join
+    int i = 1;
+    while (potentialGame.isFull()) {
+        cout << "The game room is full! Will assign the player to the next avaliable room";
+        potentialGame = activeGames[i];
+        i++;
+    }
+
+    potentialGame.setPlayer(player);
+
+    if (potentialGame.isFull()) {
+        sendData(potentialGame.getOPlayer()->getUser()->getSock(), "WAIT");
+
+        sendData(potentialGame.getXPlayer()->getUser()->getSock(), potentialGame.sendState());
+    }
+}
+
+string createNewGameRoom(int roomNum){
+    for(int i = 0; i<activeGames.size(); i++){
+        if(activeGames.at(i).getgameNum() == roomNum)
+            return "That game room has a player in it. Can not delete\n";
+        else{
+            activeGames.push_back(Game(roomNum));
+            return listOfRunningGames();
+        }
+    } 
+}
 
 string removeAPlayableRoom(int roomNum){
     for(int i = 0; i<activeGames.size(); i++){
@@ -334,12 +363,15 @@ void processSockets(fd_set readySocks) {
                 break;
             case createroom:
                 cout<< "creating game room\n";
-                activeGames.push_back(Game());
-                sendData(sock,listOfRunningGames());
+                sendData(sock, createNewGameRoom(stoi(receiveData(sock,buffer,size))));
+                //activeGames.push_back(Game());
+               // sendData(sock,listOfRunningGames());
                 break;
             case joinroom:
-                cout<< "Listing all users\n";
-                sendData(sock,listUsers());    
+                cout<< "User joining room\n";
+                memset(buffer, 0, BUFFERSIZE);
+                joinALiveRoom(stoi(receiveData(sock, buffer, size)), sock, userName);   //recieves the room number the user wants to join
+                //sendData(sock,listUsers());    
                 break;
             case deleteroom:
                 cout<< "Listing all users\n";

@@ -20,9 +20,11 @@
 
 #include "constants.h"
 
+void joinALiveRoom(int roomNum, int sock, string username);
+
 string removeAPlayableRoom(int roomNum);
 
-void createNewGameRoom(int sock);
+string createNewGameRoom(int roomNum);
 
 string listOfRunningGames(void);
 
