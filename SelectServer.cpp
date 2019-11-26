@@ -308,7 +308,7 @@ void updateLeaderBoard(){           //Does not account for tied winners! Will ra
     temp_string.append("CPSC_441 LEADERBOARD!\n");
     for(int j = 0; j <=registeredUsers.size(); j++){
         for(int i = 0; i <registeredUsers.size(); i++){
-            if(values[j] == registeredUsers.at(i).getUserScore()){
+            if(values[j] == registeredUsers.at(i).getUserScore() && registeredUsers.at(i).returnUsername() != "Admin"){
                 if(j == 1){
                         temp_string.append("The current leader on the leaderboard is " + registeredUsers.at(i).getUserName() + " with " + to_string(registeredUsers.at(i).getWins()));
                         temp_string.append(" wins, " + to_string(registeredUsers.at(i).getLoses()) + " loses, and " + to_string(registeredUsers.at(i).getDraws()) + " draws for a total score ");

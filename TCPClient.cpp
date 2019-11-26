@@ -300,6 +300,7 @@ void attemptLogin(int sock) {
             break;
         }
         cout << "Your username is either incorrect or you have been banned from this server\n" << endl;
+   
 
     }
 
