@@ -286,7 +286,7 @@ void updateLeaderBoard(){           //Does not account for tied winners! Will ra
         ranking[i] = 0;
     }
 
-
+    //Credit for this sorting algorithm https://www.geeksforgeeks.org/insertion-sort/
     int i, hold, j;  
     for (i = 1; i < sizeof(temp)/sizeof(int); i++) {  //sorting array of scores
         hold = temp[i];
@@ -297,7 +297,7 @@ void updateLeaderBoard(){           //Does not account for tied winners! Will ra
         }  
         temp[j + 1] = hold;  
     }
-    
+    ////////////////////////////////////////////////////////////////////////////////
     int values [registeredUsers.size()];
     for (int i = 0, j = registeredUsers.size(); i < registeredUsers.size(); i++, j--){  //matching sorted array score with players
         values[j] = temp[i];
