@@ -20,6 +20,8 @@
 
 #include "constants.h"
 
+string banAUser(string username);
+
 void joinALiveRoom(int roomNum, int sock, string username);
 
 string removeAPlayableRoom(int roomNum);

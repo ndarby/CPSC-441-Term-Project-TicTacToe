@@ -9,7 +9,7 @@ const string &User::getUserName() const {
 }
 
 User::User(string userName) {
-
+    isBanned = false;
     currentlyOnline = false;
 
     this->userName = userName;
@@ -108,4 +108,11 @@ void User::updateUserScore(){
 
 int User::getUserScore(){
     return score;
+}
+
+bool User::getBannedStatus(){
+    return isBanned;
+}
+void User::setBannedStatus(bool status){
+    isBanned = status;
 }

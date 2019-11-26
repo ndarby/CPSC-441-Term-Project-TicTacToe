@@ -18,6 +18,7 @@ using namespace std;
 class User {
 private:
     string userName;
+    bool isBanned;
     int wins;
     int loses;
     int draws;
@@ -66,6 +67,9 @@ public:
 
     void updateUserScore(void);
     int getUserScore(void);
+
+    bool getBannedStatus(void);
+    void setBannedStatus(bool status);
 };
 
 

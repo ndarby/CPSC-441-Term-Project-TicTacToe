@@ -14,7 +14,11 @@
 
 using namespace std;
 
+bool adminAccount = false;
+
 const int BUFFERSIZE = 32;   // Size the message buffers
+
+void banUser(int sock);
 
 void joinALiveRoom(int sock);
 
@@ -57,7 +61,15 @@ int main(int argc, char *argv[]) {
 }
 
 void menuOptions(int sock) {
-    cout << "The menu options are: 'logout', 'leaderboard', 'KILLSERVER', 'listusers',\n'createroom', 'joinroom', 'deleteroom'" << endl;
+    if(adminAccount == true){                   //admin account
+        cout << "You are currently running as an administrator.\n";
+        cout << "The menu options are: 'logout', 'leaderboard', 'KILLSERVER', 'listusers',\n'createroom', 'joinroom', 'deleteroom', 'banUser'" << endl;
+    }
+    else{                                       //regular account
+        cout << "The menu options are: 'logout', 'leaderboard', 'KILLSERVER', 'listusers',\n'createroom', 'joinroom', 'deleteroom'" << endl;
+    }
+    
+
     string userInput;
     while (true) {
         cin >> userInput;
@@ -84,9 +96,21 @@ void menuOptions(int sock) {
 
         }else if (userInput == "deleteroom"){
             deleteRoom(sock);
+        }else if (userInput == "banUser"){
+            banUser(sock);
         }
     }
 }
+
+void banUser(int sock){
+    string userToBan;
+    sendData(sock,"BANUSER");
+    cout<< "Please give the name of the User you'd like to ban\n";
+    cin >> userToBan;
+    sendData(sock,userToBan);
+    cout << receiveData(sock);
+}
+
 void joinALiveRoom(int sock){
     string joinNum;
     sendData(sock,"JOINROOM");
@@ -275,8 +299,12 @@ void attemptLogin(int sock) {
             cout << receiveData(sock);                      //Where initial room listing is displayed
             break;
         }
-        cout << "Invalid user name. Try again" << endl;
+        cout << "Your username is either incorrect or you have been banned from this server\n" << endl;
 
+    }
+
+    if(userName == "Admin"){
+        adminAccount = true;
     }
 }
 

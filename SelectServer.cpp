@@ -34,7 +34,8 @@ vector<User> registeredUsers = {
         User("August"),
         User("Grigory"),
         User("Bob"),
-        User("Alex")
+        User("Alex"),
+        User("Admin")
 };
 
 int main(int argc, char *argv[]) {
@@ -231,6 +232,16 @@ void loadUserDetails(){                             //Loads all the user data st
                 registeredUsers.at(i).setDraws(stoi(userInfo.substr(0, pos)));
                 //cout << stoi(userInfo.substr(0, pos));
                 userInfo.erase(0, pos + 1);
+
+                pos = userInfo.find(" ");                                   //Setting banned status
+                if(stoi(userInfo.substr(0, pos)) == 1){
+                    registeredUsers.at(i).setBannedStatus(true);
+                }
+                else{
+                    registeredUsers.at(i).setBannedStatus(false);
+                }
+                //cout << stoi(userInfo.substr(0, pos));
+                userInfo.erase(0, pos + 1);
                
             }
         }  
@@ -247,6 +258,12 @@ void beginTerminate(){
         userInfo.append(to_string((int)registeredUsers[i].getWins())+ " ");
         userInfo.append(to_string((int)registeredUsers[i].getLoses())+ " ");
         userInfo.append(to_string((int)registeredUsers[i].getDraws())+ " ");
+
+        if(registeredUsers[i].getBannedStatus() ==true){
+            userInfo.append("1 ");
+        }else{
+           userInfo.append("0 "); 
+        }
         userInfo.append("\n");
     }
     myfile << userInfo;
@@ -378,6 +395,11 @@ void processSockets(fd_set readySocks) {
                 memset(buffer, 0, BUFFERSIZE);
                 sendData(sock, removeAPlayableRoom(stoi(receiveData(sock, buffer, size))));  //recieves the user's room number, stoi makes it int, removeAPl.. deletes a room   
                 break;                                                                      //and returns an updated list or tells the user the room has someone in it
+            case banuser:
+                cout<< "Banning user\n";
+                memset(buffer, 0, BUFFERSIZE);
+                sendData(sock, banAUser(receiveData(sock, buffer, size)));
+                break;
         }
 
         //sendData(sock, buffer, size);
@@ -386,6 +408,14 @@ void processSockets(fd_set readySocks) {
     delete[] buffer;
 }
 
+string banAUser(string username){
+    for(int i = 0; i<registeredUsers.size(); i++){
+        if(registeredUsers.at(i).returnUsername() == username){
+            registeredUsers.at(i).setBannedStatus(true);
+        }
+    }
+    return "User has been banned\n";
+}
 
 string receiveData(int sock, char *inBuffer, int &size) {
     // Receive the message from client
@@ -432,6 +462,9 @@ ServerCommand processData(string data) {
     }
     else if (data.find("DELETEROOM") == 0) {
         return deleteroom;
+    }
+    else if (data.find("BANUSER") == 0) {
+        return banuser;
     }
     else {
         return makeMove;
@@ -531,14 +564,21 @@ void sendData(int sock, string data) {
 void loginUser(int sock, string userName) {
     bool userLoggedIn = false;
     for (int i = 0; i <= registeredUsers.size(); i++) {
+        cout << registeredUsers[i].getBannedStatus();
         if ((registeredUsers[i].getUserName() == userName) && registeredUsers[i].attemptLogin()) {
-            sendData(sock, "LOGIN SUCCESS");
-            sendData(sock, listOfRunningGames());                    //Where initial room data is stored.
-            userLoggedIn = true;
-            registeredUsers[i].setOnlineStatus(true);
-            registeredUsers[i].setSock(sock);
-            activeUsers[sock] = &registeredUsers[i];
-            break;
+            if(registeredUsers[i].getBannedStatus()){
+                sendData(sock, "LOGIN FAILED");
+                break;
+            }
+            else{
+                sendData(sock, "LOGIN SUCCESS");
+                sendData(sock, listOfRunningGames());                    //Where initial room data is stored.
+                userLoggedIn = true;
+                registeredUsers[i].setOnlineStatus(true);
+                registeredUsers[i].setSock(sock);
+                activeUsers[sock] = &registeredUsers[i];
+                break;
+            }
         }
     }
     if (!userLoggedIn) {
