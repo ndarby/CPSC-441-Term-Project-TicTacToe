@@ -16,12 +16,14 @@ public:
     void setGame(Game *game);
 
 private:
-    string userName;
+    
     Mark mark;
     Game* game;
     User* user;
 
 public:
+    string userName;
+
     Player(string userName);
 
     void setMark(Mark mark);

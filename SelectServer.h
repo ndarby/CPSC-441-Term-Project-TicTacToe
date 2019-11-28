@@ -20,6 +20,8 @@
 
 #include "constants.h"
 
+void setWinsandLoses(string winner, string loser);
+
 string banAUser(string username);
 
 void joinALiveRoom(int roomNum, int sock, string username);

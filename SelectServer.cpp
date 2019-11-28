@@ -472,6 +472,17 @@ ServerCommand processData(string data) {
 
 }
 
+void setWinsandLoses(string winner, string loser){
+    for(int i = 0; i<registeredUsers.size(); i++){
+        if(registeredUsers.at(i).returnUsername() == winner){
+            registeredUsers.at(i).setWins(registeredUsers.at(i).getWins() + 1);
+        }
+        else if(registeredUsers.at(i).returnUsername() == loser){
+              registeredUsers.at(i).setLoses(registeredUsers.at(i).getLoses() + 1);
+        }
+    }
+}
+
 void processMove(int sock, string data) {
     int col = data[0] - '0';
     int row = data[2] - '0';
@@ -484,11 +495,15 @@ void processMove(int sock, string data) {
             sendData(sock, "WIN");                                          //Sending the winner a "WIN" Statement
             //currentUser->getPlayer()->setWins();                                          //Will increment the Wins of the current User in the server
             Player *opponent = game->getOpponent(currentUser->getPlayer());
+            //currentUser.setWins(getWins() + 1);
             
 
             sendData(opponent->getUser()->getSock(), "LOSS");
             //opponent->getPlayer()->setLoses();                              //Will increment the losers overall loses by one
             sendData(opponent->getUser()->getSock(), game->sendState());
+            //currentUser.setLoses(getLoses() + 1);
+
+            setWinsandLoses(currentUser->returnUsername(), opponent->getUser()->returnUsername());
 
         }
         sendData(sock, "MOVE SUCCESS");
