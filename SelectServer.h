@@ -20,6 +20,10 @@
 
 #include "constants.h"
 
+void joinObserverRoom(int roomNum, string username);
+
+void observe(int gameNum, string gamestate);
+
 void setWinsandLoses(string winner, string loser);
 
 string banAUser(string username);

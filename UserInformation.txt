@@ -2,6 +2,6 @@ Greg 5 3 2 0
 Nathan 3 2 3 0 
 August 2 2 2 1 
 Grigory 3 5 3 0 
-Bob 10 1 0 0 
-Alex 4 15 0 0 
+Bob 11 3 0 0 
+Alex 6 16 0 0 
 Admin 0 0 0 0 

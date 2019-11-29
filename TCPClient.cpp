@@ -18,6 +18,14 @@ bool adminAccount = false;
 
 const int BUFFERSIZE = 32;   // Size the message buffers
 
+void printMenu();
+
+void printNormalCommands();
+
+void printAdminCommands();
+
+void observe(int sock);
+
 void banUser(int sock);
 
 void joinALiveRoom(int sock);
@@ -63,10 +71,10 @@ int main(int argc, char *argv[]) {
 void menuOptions(int sock) {
     if(adminAccount == true){                   //admin account
         cout << "You are currently running as an administrator.\n";
-        cout << "The menu options are: 'logout', 'leaderboard', 'KILLSERVER', 'listusers',\n'createroom', 'joinroom', 'deleteroom', 'banUser'" << endl;
+        printAdminCommands();
     }
     else{                                       //regular account
-        cout << "The menu options are: 'logout', 'leaderboard', 'KILLSERVER', 'listusers',\n'createroom', 'joinroom', 'deleteroom'" << endl;
+        printNormalCommands();
     }
     
 
@@ -79,6 +87,7 @@ void menuOptions(int sock) {
         } else if (userInput == "leaderboard") {
             sendData(sock, "LEADERBOARD");
             cout<< receiveData(sock);
+            printMenu();
         } else if (userInput == "play") {
             sendData(sock, "PLAY");
             enterGame(sock);
@@ -87,6 +96,7 @@ void menuOptions(int sock) {
         }else if (userInput == "listusers"){
             sendData(sock,"LISTUSERS");
             cout<< receiveData(sock);
+            printMenu();
         }else if (userInput == "createroom"){
             createNewRoom(sock);
         }else if (userInput == "joinroom"){
@@ -98,8 +108,50 @@ void menuOptions(int sock) {
             deleteRoom(sock);
         }else if (userInput == "banUser"){
             banUser(sock);
+            printMenu();
+        }
+        else if (userInput == "observe"){
+            observe(sock);
         }
     }
+}
+
+void printNormalCommands(){
+    cout << "The menu options are: 'logout', 'leaderboard', 'KILLSERVER', 'listusers',\n'createroom', 'joinroom', 'deleteroom', 'observe'" << endl;
+}
+
+void printAdminCommands(){
+    cout << "The menu options are: 'logout', 'leaderboard', 'KILLSERVER', 'listusers',\n'createroom', 'joinroom', 'deleteroom', 'observe', banUser'" << endl;
+}
+
+void observe(int sock){
+    string gameRoomToObserve;
+    sendData(sock,"OBSERVE");
+    cout<< "Please give the number of the room you'd like to observe\n";
+    cin >> gameRoomToObserve;
+    sendData(sock,gameRoomToObserve);
+
+    while(1){
+        string ans =receiveData(sock);
+        if(ans.find("thegamehasnowended") == 0){
+            cout << "\nThe Game has ended. Returning to options menu\n";
+            printMenu();
+            return;
+        }
+        else{
+            cout << ans;
+        }
+    }
+}
+
+void printMenu(){
+    if(adminAccount == true){                   //admin account
+        printAdminCommands();
+    }
+    else{                                       //regular account
+        printNormalCommands();
+    }
+    return;
 }
 
 void banUser(int sock){
@@ -109,6 +161,7 @@ void banUser(int sock){
     cin >> userToBan;
     sendData(sock,userToBan);
     cout << receiveData(sock);
+    printMenu();
 }
 
 void joinALiveRoom(int sock){
@@ -147,6 +200,7 @@ void joinALiveRoom(int sock){
                 dataFromServer = receiveData(sock);
                 cout << dataFromServer;
                 endGame = true;
+                printMenu();
             } else {
                 cout << dataFromServer;
             }
@@ -157,6 +211,7 @@ void joinALiveRoom(int sock){
         } else if (dataFromServer == "WIN") {
             cout << "You won!" << endl;
             endGame = true;
+            printMenu();
         }
 
     }
@@ -170,6 +225,7 @@ void deleteRoom(int sock){
     sendData(sock,removeNum);
     cout<< removeNum;
     cout<<receiveData(sock);
+    printMenu();
 }
 
 void createNewRoom(int sock){
@@ -179,6 +235,7 @@ void createNewRoom(int sock){
     cin >> gameroomNumber;
     sendData(sock,gameroomNumber);
     cout<<receiveData(sock);
+    printMenu();
 }
 
 void enterGame(int sock) {

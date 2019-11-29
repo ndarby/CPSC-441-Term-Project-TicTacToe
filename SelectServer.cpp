@@ -133,6 +133,7 @@ void joinALiveRoom(int roomNum, int sock, string username){
     //cout << "found sockets user " << user->getUserName() << endl;
     Player* player = new Player(username);   //TODO this probably causes a memory leak
     user->setPlayer(player);
+    cout << "created player class with name " << username;
 
     for(int i =0; i<activeGames.size(); i++){           //Has to find the position in active games array that match the roomnumber provided
         if(activeGames.at(i).getgameNum() == roomNum){
@@ -328,8 +329,7 @@ void updateLeaderBoard(){           //Does not account for tied winners! Will ra
     }
     cout << temp_string << endl;
     leaderBoard.clear(); 
-    leaderBoard.append(temp_string); //deep copy
-    
+    leaderBoard.append(temp_string); //deep copy  
 }
   
 void processSockets(fd_set readySocks) {
@@ -350,6 +350,8 @@ void processSockets(fd_set readySocks) {
 
         ServerCommand command = processData(fromClient);
         string userName;
+      
+        //cout << endl << "PRINTING USERNAME" << userName << endl;
 
         switch (command) {
             case login:
@@ -387,7 +389,7 @@ void processSockets(fd_set readySocks) {
             case joinroom:
                 cout<< "User joining room\n";
                 memset(buffer, 0, BUFFERSIZE);
-                joinALiveRoom(stoi(receiveData(sock, buffer, size)), sock, userName);   //recieves the room number the user wants to join
+                joinALiveRoom(stoi(receiveData(sock, buffer, size)), sock, activeUsers[sock]->returnUsername());   //recieves the room number the user wants to join
                 //sendData(sock,listUsers());    
                 break;
             case deleteroom:
@@ -400,6 +402,15 @@ void processSockets(fd_set readySocks) {
                 memset(buffer, 0, BUFFERSIZE);
                 sendData(sock, banAUser(receiveData(sock, buffer, size)));
                 break;
+
+            case observeGame:
+                cout<< "observing game\n";
+                memset(buffer, 0, BUFFERSIZE);
+                //cout << activeUsers[sock]->returnUsername();
+                //cout << stoi(receiveData(sock, buffer, size));
+                joinObserverRoom(stoi(receiveData(sock, buffer, size)), activeUsers[sock]->returnUsername());
+                //sendData(sock, banAUser(receiveData(sock, buffer, size)));
+                break;
         }
 
         //sendData(sock, buffer, size);
@@ -407,6 +418,8 @@ void processSockets(fd_set readySocks) {
 
     delete[] buffer;
 }
+
+
 
 string banAUser(string username){
     for(int i = 0; i<registeredUsers.size(); i++){
@@ -466,6 +479,9 @@ ServerCommand processData(string data) {
     else if (data.find("BANUSER") == 0) {
         return banuser;
     }
+    else if (data.find("OBSERVE") == 0) {
+        return observeGame;
+    }
     else {
         return makeMove;
     }
@@ -483,18 +499,59 @@ void setWinsandLoses(string winner, string loser){
     }
 }
 
+void joinObserverRoom(int roomNum, string username){
+    for(int i = 0; i<activeGames.size(); i++){
+        if(activeGames.at(i).getgameNum() == roomNum){
+            for(int j = 0; j<registeredUsers.size(); j++){
+                if(registeredUsers.at(j).returnUsername() == username){
+                    activeGames.at(i).observerArray[activeGames.at(i).observercount] = &registeredUsers.at(j);
+                    activeGames.at(i).observercount++;
+                    cout << "\nHere\n\n";
+                }
+            }
+        }
+    }
+}
+
+void observe(int gameNum, string gamestate, char mark){
+    //cout << "\nHere\n\n";
+    for(int i = 0; i<activeGames.size(); i++){
+        //cout << "AHHHH\n";
+        if(activeGames.at(i).getgameNum() == gameNum)
+            for(int k = 0; k<activeGames.at(i).observercount; k++){
+                cout << "Sending to client " << gameNum << " \n" << gamestate;
+                string send;
+                if(mark == 'X'){
+                    send.append(activeGames.at(i).getXPlayer()->userName + "'s turn below:\n");
+                }
+                else if (mark == 'O'){
+                    send.append(activeGames.at(i).getOPlayer()->userName + "'s turn below:\n");
+                }
+                else if (mark == 'F'){      //Game is over
+                     sendData(activeGames.at(i).observerArray[k]->getSock(), "thegamehasnowended");
+                     activeGames.at(i).observerArray[k] = NULL;
+                     activeGames.at(i).observercount = 0;
+                     return;
+                }
+                send.append(gamestate);
+                sendData(activeGames.at(i).observerArray[k]->getSock(), send);
+            }
+    }
+}
+
 void processMove(int sock, string data) {
     int col = data[0] - '0';
     int row = data[2] - '0';
 
     User* currentUser = activeUsers[sock];
-
+    Game* game = currentUser->getPlayer()->getGame();
+    Player *opponent = game->getOpponent(currentUser->getPlayer());
     if (currentUser->getPlayer()->play(col, row)) { //valid move
-        Game* game = currentUser->getPlayer()->getGame();
+        
         if (game->checkWin(currentUser->getPlayer())) {
             sendData(sock, "WIN");                                          //Sending the winner a "WIN" Statement
             //currentUser->getPlayer()->setWins();                                          //Will increment the Wins of the current User in the server
-            Player *opponent = game->getOpponent(currentUser->getPlayer());
+            
             //currentUser.setWins(getWins() + 1);
             
 
@@ -502,13 +559,21 @@ void processMove(int sock, string data) {
             //opponent->getPlayer()->setLoses();                              //Will increment the losers overall loses by one
             sendData(opponent->getUser()->getSock(), game->sendState());
             //currentUser.setLoses(getLoses() + 1);
+           
+            observe(game->getgameNum(), game->sendState(), 'F');
 
             setWinsandLoses(currentUser->returnUsername(), opponent->getUser()->returnUsername());
+            return;
 
         }
         sendData(sock, "MOVE SUCCESS");
         Player *opponent = currentUser->getPlayer()->getGame()->getOpponent(currentUser->getPlayer());
         sendData(opponent->getUser()->getSock(), opponent->getGame()->sendState());
+        //cout << "TESTING: " <<currentUser->getPlayer()->userName;
+        //cout << "TESTING: "<< opponent->userName;
+        observe(game->getgameNum(), game->sendState(), currentUser->getPlayer()->getMark());
+
+
 
     } else {
         sendData(sock, "MOVE FAILED");

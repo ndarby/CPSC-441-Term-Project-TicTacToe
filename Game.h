@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include "Board.h"
 #include "Player.h"
+#include "User.h"
 
 class Player;
 
@@ -18,6 +19,11 @@ private:
     Turn currentTurn = xTurn;
 
 public:
+
+    int observercount = 0;
+
+    User* observerArray[10];
+
     Game();
 
     Game(int num);
